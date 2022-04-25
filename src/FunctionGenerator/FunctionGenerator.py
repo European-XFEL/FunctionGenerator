@@ -27,6 +27,12 @@ class ChannelNode(Configurable):
         alias='SOURce1:FUNCtion:SHAPe',
         options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
                  'LOR', 'ERIS', 'EDEC', 'EMEM'},
+        description={"Shape of the output waveform. When the specified user "
+                     "memory is deleted, this command causes an error if you "
+                     "select the user memory. "
+                     "If you select a waveform shape that is not allowed with "
+                     "a particular modulation, sweep, or burst, Run mode "
+                     "automatically changes to Continuous."},
         defaultValue='PULS')
     functionShape.readOnConnect = True
 
@@ -43,13 +49,19 @@ class ChannelNode(Configurable):
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
-        alias='SOURce1:VOLT:OFFS')
+        alias='SOURce1:VOLT:OFFS',
+        description={"Offset level for the specified channel. "
+                     "If your instrument is a dual-channel "
+                     "model and the [SOURce[1|2]]:VOLTage:CONCurrent[:STATe] "
+                     "command is set to ON, then the offset level of the "
+                     "other channel is also the same value."})
     offset.readOnConnect = True
     offset.poll = 10
 
     amplitude = Double(
         displayedName='Amplitude',
-        alias='SOURce1:VOLT:AMPL')
+        alias='SOURce1:VOLT:AMPL',
+        description={"Output amplitude for the specified channel."})
     amplitude.poll = 10
     amplitude.readOnConnect = True
 
@@ -57,6 +69,7 @@ class ChannelNode(Configurable):
         displayedName='Amplitude Unit',
         alias='SOURce1:VOLT:UNIT',
         options={'VPP', 'VRMS', 'DBM'},
+        description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitude_unit.readOnConnect = True
 
@@ -82,14 +95,16 @@ class FunctionGenerator(ScpiAutoDevice):
     identification = String(
         displayedName='Identification',
         accessMode=AccessMode.READONLY,
-        alias='*IDN')
+        alias='*IDN',
+        description={"Identification information on the AFG."})
     identification.readOnConnect = True
 
     channel_1 = Node(ChannelNode, displayedName='channel 1')
 
     amplitude2 = Double(
         displayedName='Amplitude2',
-        alias='SOURce1:VOLT:AMPL')
+        alias='SOURce1:VOLT:AMPL',
+        description={""})
     amplitude2.poll = 10
     amplitude2.readOnConnect = True
 
@@ -103,13 +118,16 @@ class FunctionGenerator(ScpiAutoDevice):
     pulse_width = Double(
         displayedName='Pulse width',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:PULS:WIDT')
+        alias='SOURce1:PULS:WIDT',
+        description={"Pulse width for the specified channel."})
     pulse_width.readOnConnect = True
 
     burst_state = String(
         displayedName='Burst State',
         alias='SOURce1:BURSt:STAT',
         options={'ON', 'OFF'},
+        description={"Enables or disables the burst mode for the "
+                     "specified channel."},
         defaultValue='OFF')
     burst_state.readOnConnect = True
 
@@ -142,12 +160,20 @@ class FunctionGenerator(ScpiAutoDevice):
         displayedName='Burst Mode',
         alias='SOURce1:BURSt:MODE',
         options={'TRIG', 'GAT'},
+        description={"TRIG: Means that triggered mode is selected for "
+                     "burst mode."
+                     "GAT: Means gated mode is selected for burst mode."},
         defaultValue='TRIG')
     burst_mode.readOnConnect = True
 
     burst_cycles = String(
         displayedName='Burst Cycles',
         alias='SOURce1:BURSt:NCYC',
+        description={"Number of cycles (burst count) to be output in burst "
+                     "mode for the specified channel. The query command "
+                     "returns 9.9E+37 if the burst count is set to INFinity."
+                     "Choose a number between 1 and 1,000,000 or "
+                     "INF, MIN or MAX"},
         defaultValue='INF')
     burst_cycles.readOnConnect = True
 
@@ -160,43 +186,80 @@ class FunctionGenerator(ScpiAutoDevice):
     burst_delay = Double(
         displayedName='Burst Delay',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:BURS:TDEL')
+        alias='SOURce1:BURS:TDEL',
+        description={"Specifies a time delay between the trigger and the "
+                     "signal output. This command is available only in the "
+                     "Triggered burst mode. "
+                     "The setting range is 0.0 ns to 85.000 s with "
+                     "resolution of 100 ps or 5 digits."
+                     "Choose a number in range or MIN or MAX"},
+        defaultValue='MIN')
     burst_delay.readOnConnect = True
+
+    def setter(self, value):
+        # convert any answer to string in case of a number
+        self.burst_delay = str(value)
+
+    burst_delay.__set__ = setter
 
     frequency_start = Double(
         displayedName='Start Frequency',
         unitSymbol=Unit.HERTZ,
-        alias='SOURce1:FREQ:STAR')
+        alias='SOURce1:FREQ:STAR',
+        description={"Start frequency of sweep for the specified channel. "
+                     "This command is always used with the "
+                     "[SOURce[1|2]]:FREQuency:STOP command. The setting "
+                     "range of start frequency depends on the waveform "
+                     "selected for sweep."})
     frequency_start.readOnConnect = True
 
     frequency_stop = Double(
         displayedName='Stop Frequency',
         unitSymbol=Unit.HERTZ,
-        alias='SOURce1:FREQ:STOP')
+        alias='SOURce1:FREQ:STOP',
+        description={"Stop frequency of sweep for the specified channel. "
+                     "This command is always used with the "
+                     "[SOURce[1|2]]:FREQuency:STARt command. The setting "
+                     "range of stop frequency depends on the waveform "
+                     "selected for sweep."})
     frequency_stop.readOnConnect = True
 
     sweep_time = Double(
         displayedName='Sweep Time',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:SWE:TIME')
+        alias='SOURce1:SWE:TIME',
+        description={"Sweep time for the sweep for the specified channel. "
+                     "The sweep time does not include hold time and return "
+                     "time. The setting range is 1 ms to 500 s."})
     sweep_time.readOnConnect = True
 
     sweep_hold_time = Double(
         displayedName='Sweep Hold Time',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:SWE:HTIM')
+        alias='SOURce1:SWE:HTIM',
+        description={"Sweep hold time. Hold time represents the amount of "
+                     "time that the frequency must remain stable after "
+                     "reaching the stop frequency."})
     sweep_hold_time.readOnConnect = True
 
     sweep_return_time = Double(
         displayedName='Sweep Return Time',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:SWE:RTIM')
+        alias='SOURce1:SWE:RTIM',
+        description={"Sweep return time. Return time represents the amount "
+                     "of time from stop frequency through start frequency. "
+                     "Return time does not include hold time."})
     sweep_return_time.readOnConnect = True
 
     sweep_mode = String(
         displayedName='Sweep Mode',
         alias='SOURce1:SWE:MODE',
         options={'AUTO', 'MAN'},
+        description={"AUTO: Sets the sweep mode to auto; the instrument "
+                     "outputs a continuous sweep at a rate specified by "
+                     "Sweep Time, Hold Time, and Return Time."
+                     "MAN: Sets the sweep mode to manual; the instrument "
+                     "outputs one sweep when a trigger input is received."},
         defaultValue='AUTO')
     sweep_mode.readOnConnect = True
 
@@ -204,6 +267,7 @@ class FunctionGenerator(ScpiAutoDevice):
         displayedName='Output state',
         alias='OUTPut1',
         options={'ON', 'OFF'},
+        description={"Enable the AFG output for the specified channel."},
         defaultValue='OFF')
     output_state.readOnConnect = True
 
@@ -223,6 +287,16 @@ class FunctionGenerator(ScpiAutoDevice):
         displayedName='Trigger Mode',
         alias='OUTP:TRIG:MODE',
         options={'TRIG', 'SYNC'},
+        description={"The mode (trigger or sync) for Trigger Output signal. "
+                     "When the burst count is set to Inf-Cycles in burst mode,"
+                     "TRIGger indicates that the infinite number of cycles "
+                     "of waveform will be output from the Trigger Output "
+                     "connector. When the burst count is set to Inf-Cycles "
+                     "in burst mode, SYNC indicates that one pulse waveform "
+                     "is output from the Trigger Output connector when the "
+                     "Inf-Cycles starts. When Run Mode is specified other "
+                     "than Burst Inf-Cycles, TRIGger, and SYNC have the "
+                     "same effect."},
         defaultValue='TRIG')
     trigger_mode.readOnConnect = True
 
@@ -230,6 +304,8 @@ class FunctionGenerator(ScpiAutoDevice):
         displayedName='Trigger Source',
         alias='TRIG:SOUR',
         options={'TIM', 'EXT'},
+        description={"TIM: Specifies an internal clock as the trigger "
+                     "source. EXT: use external trigger source"},
         defaultValue='TIM')
     trigger_source.readOnConnect = True
 
@@ -237,6 +313,9 @@ class FunctionGenerator(ScpiAutoDevice):
         displayedName='Trigger Time',
         alias='TRIG:TIM',
         unitSymbol=Unit.SECOND,
+        description={"Period of an internal clock when you select the "
+                     "internal clock as the trigger source. "
+                     "The setting range is 1 μs to 500.0 s."},
         defaultValue=10)
     trigger_time.readOnConnect = True
 
@@ -244,6 +323,10 @@ class FunctionGenerator(ScpiAutoDevice):
         displayedName='Run Mode',
         alias='SEQC:RMOD',
         options={'CONT', 'TRIG', 'GAT', 'SEQ'},
+        description={"CONT: Sets Run Mode to Continuous."
+                     "TRIG: Sets Run Mode to Triggered."
+                     "GAT: Sets Run Mode to Gated."
+                     "SEQ: Sets Run Mode to Sequence."},
         defaultValue='CONT')
     run_mode.readOnConnect = True
 
