@@ -10,13 +10,13 @@ from karabo.middlelayer import (
     background, sleep, Slot
 )
 from karabo.middlelayer_api.utils import get_property
-from scpiml import ScpiAutoDevice
+from scpiml import ScpiAutoDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion
 
 CONNECTION_TIMEOUT = 10  # in seconds
 
-class ChannelNode(Configurable):
+class ChannelNode(ScpiConfigurable):
 
     # def __init__(self, id):
     #     super().__init__(self)
@@ -183,7 +183,7 @@ class FunctionGenerator(ScpiAutoDevice):
 
     burst_cycles.__set__ = setter
 
-    burst_delay = Double(
+    burst_delay = String(
         displayedName='Burst Delay',
         unitSymbol=Unit.SECOND,
         alias='SOURce1:BURS:TDEL',
@@ -330,56 +330,56 @@ class FunctionGenerator(ScpiAutoDevice):
         defaultValue='CONT')
     run_mode.readOnConnect = True
 
-    @Slot(
-        displayedName="Connect",
-        allowedStates=[State.UNKNOWN]
-    )
-    async def connect(self):
-        self.state = State.CHANGING
-        self.status = "Connecting..."
-        if self.connect_task:
-            self.connect_task.cancel()
-        self.connect_task = background(self._connect())
-
-    async def _connect(self):
-        """Connects to the instrument.
-
-        In case of failures the state is set to UNKNOWN and the device tries
-        to reconnect.
-        """
-        msg = ""
-        try:
-            await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
-        except TimeoutError as e:
-            if "Timeout while waiting for reply" not in str(e):
-                msg = (f"Error: Timeout ({CONNECTION_TIMEOUT} s) in "
-                       "connecting to the Keithley instrument. Please, "
-                       "fix the problem and reconnect to the instrument.")
-        except ConnectionRefusedError as e:
-            msg = ("Error: ConnectionRefused with the Keithley instrument. "
-                   f"Exception: {e}. Please, fix the problem and "
-                   "reconnect to the instrument.")
-        finally:
-            # dump a message in case of error and re-try connecting
-            if msg:
-                if self.status != msg:
-                    self.logger.error(msg)
-                    self.status = msg
-                    self.state = State.UNKNOWN
-                self.connect_task = background(self._connect())
-                return False
-
-        self.status = "Connected"
-
-        return True
+    # @Slot(
+    #     displayedName="Connect",
+    #     allowedStates=[State.UNKNOWN]
+    # )
+    # async def connect(self):
+    #     self.state = State.CHANGING
+    #     self.status = "Connecting..."
+    #     if self.connect_task:
+    #         self.connect_task.cancel()
+    #     self.connect_task = background(self._connect())
+    #
+    # async def _connect(self):
+    #     """Connects to the instrument.
+    #
+    #     In case of failures the state is set to UNKNOWN and the device tries
+    #     to reconnect.
+    #     """
+    #     msg = ""
+    #     try:
+    #         await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
+    #     except TimeoutError as e:
+    #         if "Timeout while waiting for reply" not in str(e):
+    #             msg = (f"Error: Timeout ({CONNECTION_TIMEOUT} s) in "
+    #                    "connecting to the Keithley instrument. Please, "
+    #                    "fix the problem and reconnect to the instrument.")
+    #     except ConnectionRefusedError as e:
+    #         msg = ("Error: ConnectionRefused with the Keithley instrument. "
+    #                f"Exception: {e}. Please, fix the problem and "
+    #                "reconnect to the instrument.")
+    #     finally:
+    #         # dump a message in case of error and re-try connecting
+    #         if msg:
+    #             if self.status != msg:
+    #                 self.logger.error(msg)
+    #                 self.status = msg
+    #                 self.state = State.UNKNOWN
+    #             self.connect_task = background(self._connect())
+    #             return False
+    #
+    #     self.status = "Connected"
+    #
+    #     return True
 
     async def onInitialization(self):
         self.initialized = True
-        self.connect_task = None
+    #    self.connect_task = None
 
 
-    async def onDestruction(self):
-        """Actions to take when the device is shutdown."""
-        if self.connect_task:  # connecting
-            self.connect_task.cancel()
-        await super().onDestruction()
+    # async def onDestruction(self):
+    #     """Actions to take when the device is shutdown."""
+    #     if self.connect_task:  # connecting
+    #         self.connect_task.cancel()
+    #     await super().onDestruction()
