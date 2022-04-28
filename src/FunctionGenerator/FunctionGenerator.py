@@ -24,7 +24,7 @@ class ChannelNode(ScpiConfigurable):
 
     functionShape = String(
         displayedName='Function Shape',
-        alias='SOURce1:FUNCtion:SHAPe',
+        alias='SOURce{channel_no}:FUNCtion:SHAPe',
         options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
                  'LOR', 'ERIS', 'EDEC', 'EMEM'},
         description={"Shape of the output waveform. When the specified user "
@@ -49,7 +49,7 @@ class ChannelNode(ScpiConfigurable):
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
-        alias='SOURce1:VOLT:OFFS',
+        alias='SOURce{channel_no}:VOLT:OFFS',
         description={"Offset level for the specified channel. "
                      "If your instrument is a dual-channel "
                      "model and the [SOURce[1|2]]:VOLTage:CONCurrent[:STATe] "
@@ -60,18 +60,38 @@ class ChannelNode(ScpiConfigurable):
 
     amplitude = Double(
         displayedName='Amplitude',
-        alias='SOURce1:VOLT:AMPL',
+        alias='SOURce{channel_no}:VOLT:AMPL',
         description={"Output amplitude for the specified channel."})
     amplitude.poll = 10
     amplitude.readOnConnect = True
 
     amplitude_unit = String(
         displayedName='Amplitude Unit',
-        alias='SOURce1:VOLT:UNIT',
+        alias='SOURce{channel_no}:VOLT:UNIT',
         options={'VPP', 'VRMS', 'DBM'},
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitude_unit.readOnConnect = True
+
+    output_state = String(
+        displayedName='Output state',
+        alias='OUTPut{channel_no}',
+        options={'ON', 'OFF'},
+        description={"Enable the AFG output for the specified channel."},
+        defaultValue='OFF')
+    output_state.readOnConnect = True
+
+    def setter(self, value):
+        # convert any answer to string in case of a number
+        if value == 1 or '1':
+            self.output_state = 'ON'
+        if value == 0 or '0':
+            self.output_state = 'OFF'
+        else:
+            self.output_state = value
+
+    output_state.__set__ = setter
+
 
 class FunctionGenerator(ScpiAutoDevice):
     __version__ = deviceVersion
@@ -99,7 +119,16 @@ class FunctionGenerator(ScpiAutoDevice):
         description={"Identification information on the AFG."})
     identification.readOnConnect = True
 
-    channel_1 = Node(ChannelNode, displayedName='channel 1')
+    channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
+    channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
+
+    def createChildQuery(self, descr, child):
+        scpi_add = child.alias.format(channel_no=descr.alias)
+        return f"{scpi_add}?\n"
+
+    def createChildCommand(self, descr, value, child):
+        scpi_add = child.alias.format(channel_no=descr.alias)
+        return f"{scpi_add} {value.value}\n"
 
     amplitude2 = Double(
         displayedName='Amplitude2',
@@ -262,25 +291,6 @@ class FunctionGenerator(ScpiAutoDevice):
                      "outputs one sweep when a trigger input is received."},
         defaultValue='AUTO')
     sweep_mode.readOnConnect = True
-
-    output_state = String(
-        displayedName='Output state',
-        alias='OUTPut1',
-        options={'ON', 'OFF'},
-        description={"Enable the AFG output for the specified channel."},
-        defaultValue='OFF')
-    output_state.readOnConnect = True
-
-    def setter(self, value):
-        # convert any answer to string in case of a number
-        if value == 1 or '1':
-            self.output_state = 'ON'
-        if value == 0 or '0':
-            self.output_state = 'OFF'
-        else:
-            self.output_state = value
-
-    output_state.__set__ = setter
 
     # CHANNEL independent parameters
     trigger_mode = String(
