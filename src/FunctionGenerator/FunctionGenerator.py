@@ -6,10 +6,10 @@
 from asyncio import TimeoutError, wait_for
 
 from karabo.middlelayer import (
-    AccessMode, Bool, Configurable, Double, Node, State, String, Unit,
-    background, sleep, Slot
+    AccessMode, Bool, Configurable, Double, KaraboValue, Node, State, String,
+    Unit, background, sleep, Slot
 )
-from karabo.middlelayer_api.utils import get_property
+
 from scpiml import ScpiAutoDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion
@@ -18,13 +18,9 @@ CONNECTION_TIMEOUT = 10  # in seconds
 
 class ChannelNode(ScpiConfigurable):
 
-    # def __init__(self, id):
-    #     super().__init__(self)
-    #     self.channelID = id
-
     functionShape = String(
         displayedName='Function Shape',
-        alias='SOURce{channel_no}:FUNCtion:SHAPe',
+        alias='FUNCtion:SHAPe',
         options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
                  'LOR', 'ERIS', 'EDEC', 'EMEM'},
         description={"Shape of the output waveform. When the specified user "
@@ -49,7 +45,7 @@ class ChannelNode(ScpiConfigurable):
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
-        alias='SOURce{channel_no}:VOLT:OFFS',
+        alias='VOLT:OFFS',
         description={"Offset level for the specified channel. "
                      "If your instrument is a dual-channel "
                      "model and the [SOURce[1|2]]:VOLTage:CONCurrent[:STATe] "
@@ -60,37 +56,37 @@ class ChannelNode(ScpiConfigurable):
 
     amplitude = Double(
         displayedName='Amplitude',
-        alias='SOURce{channel_no}:VOLT:AMPL',
+        alias='VOLT:AMPL',
         description={"Output amplitude for the specified channel."})
     amplitude.poll = 10
     amplitude.readOnConnect = True
 
     amplitude_unit = String(
         displayedName='Amplitude Unit',
-        alias='SOURce{channel_no}:VOLT:UNIT',
+        alias='VOLT:UNIT',
         options={'VPP', 'VRMS', 'DBM'},
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitude_unit.readOnConnect = True
 
-    output_state = String(
-        displayedName='Output state',
-        alias='OUTPut{channel_no}',
-        options={'ON', 'OFF'},
-        description={"Enable the AFG output for the specified channel."},
-        defaultValue='OFF')
-    output_state.readOnConnect = True
-
-    def setter(self, value):
-        # convert any answer to string in case of a number
-        if value == 1 or '1':
-            self.output_state = 'ON'
-        if value == 0 or '0':
-            self.output_state = 'OFF'
-        else:
-            self.output_state = value
-
-    output_state.__set__ = setter
+    # output_state = String(
+    #     displayedName='Output state',
+    #     alias='OUTPut{channel_no}',
+    #     options={'ON', 'OFF'},
+    #     description={"Enable the AFG output for the specified channel."},
+    #     defaultValue='OFF')
+    # output_state.readOnConnect = True
+    #
+    # def setter(self, value):
+    #     # convert any answer to string in case of a number
+    #     if value == 1 or '1':
+    #         self.output_state = 'ON'
+    #     if value == 0 or '0':
+    #         self.output_state = 'OFF'
+    #     else:
+    #         self.output_state = value
+    #
+    # output_state.__set__ = setter
 
 
 class FunctionGenerator(ScpiAutoDevice):
@@ -106,8 +102,7 @@ class FunctionGenerator(ScpiAutoDevice):
         async def readCommandResult():
             return None
 
-        descriptor = getattr(descriptor, "descriptor", descriptor)
-        cmd = self.createCommand(descriptor, value)
+        cmd = self.createChildCommand(descriptor, value, child)
         print("SENDING:", cmd)
         await self.writeread(cmd, readCommandResult())
         await self.sendQuery(descriptor, self)
@@ -119,30 +114,41 @@ class FunctionGenerator(ScpiAutoDevice):
         description={"Identification information on the AFG."})
     identification.readOnConnect = True
 
-    channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
-    channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
+    channel_1 = Node(ChannelNode, displayedName='channel 1', alias="SOURce1")
+    channel_2 = Node(ChannelNode, displayedName='channel 2', alias="SOURce2")
+    #channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
+    #channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
 
     def createChildQuery(self, descr, child):
-        scpi_add = child.alias.format(channel_no=descr.alias)
-        return f"{scpi_add}?\n"
+        if child is None or child is self:
+            return self.createQuery(descr)
+        else:
+            scpi_add = child.alias.format(channel_no=descr.alias)
+            #return f"{scpi_add}?\n"
+            return f"{child.alias}:{descr.alias}?\n"
+
 
     def createChildCommand(self, descr, value, child):
-        scpi_add = child.alias.format(channel_no=descr.alias)
-        return f"{scpi_add} {value.value}\n"
+        if child is None or child is self:
+            return self.createCommand(descr, value)
+        else:
+            scpi_add = child.alias.format(channel_no=descr.alias)
+            #return f"{scpi_add} {value.value}\n"\
+            return f"{child.alias}:{descr.alias} {value.value}\n"
+
+    amplitude1 = Double(
+        displayedName='Amplitude1',
+        alias='SOURce1:VOLT:AMPL',
+        description={""})
+    amplitude1.poll = 10
+    amplitude1.readOnConnect = True
 
     amplitude2 = Double(
         displayedName='Amplitude2',
-        alias='SOURce1:VOLT:AMPL',
+        alias='SOURce2:VOLT:AMPL',
         description={""})
     amplitude2.poll = 10
     amplitude2.readOnConnect = True
-
-    #async def _run(self, **kwargs):
-    #    self.channel_1.parent = self  # I have not found a way around this, yet
-    #    await super()._run(**kwargs)
-    #
-    # channel_1.amplitude.poll = 10
-    # channel_1.amplitude.readOnConnect = True
 
     pulse_width = Double(
         displayedName='Pulse width',
@@ -340,56 +346,56 @@ class FunctionGenerator(ScpiAutoDevice):
         defaultValue='CONT')
     run_mode.readOnConnect = True
 
-    # @Slot(
-    #     displayedName="Connect",
-    #     allowedStates=[State.UNKNOWN]
-    # )
-    # async def connect(self):
-    #     self.state = State.CHANGING
-    #     self.status = "Connecting..."
-    #     if self.connect_task:
-    #         self.connect_task.cancel()
-    #     self.connect_task = background(self._connect())
-    #
-    # async def _connect(self):
-    #     """Connects to the instrument.
-    #
-    #     In case of failures the state is set to UNKNOWN and the device tries
-    #     to reconnect.
-    #     """
-    #     msg = ""
-    #     try:
-    #         await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
-    #     except TimeoutError as e:
-    #         if "Timeout while waiting for reply" not in str(e):
-    #             msg = (f"Error: Timeout ({CONNECTION_TIMEOUT} s) in "
-    #                    "connecting to the Keithley instrument. Please, "
-    #                    "fix the problem and reconnect to the instrument.")
-    #     except ConnectionRefusedError as e:
-    #         msg = ("Error: ConnectionRefused with the Keithley instrument. "
-    #                f"Exception: {e}. Please, fix the problem and "
-    #                "reconnect to the instrument.")
-    #     finally:
-    #         # dump a message in case of error and re-try connecting
-    #         if msg:
-    #             if self.status != msg:
-    #                 self.logger.error(msg)
-    #                 self.status = msg
-    #                 self.state = State.UNKNOWN
-    #             self.connect_task = background(self._connect())
-    #             return False
-    #
-    #     self.status = "Connected"
-    #
-    #     return True
+    @Slot(
+        displayedName="Connect",
+        allowedStates=[State.UNKNOWN]
+    )
+    async def connect(self):
+        self.state = State.CHANGING
+        self.status = "Connecting..."
+        if self.connect_task:
+            self.connect_task.cancel()
+        self.connect_task = background(self._connect())
+
+    async def _connect(self):
+        """Connects to the instrument.
+
+        In case of failures the state is set to UNKNOWN and the device tries
+        to reconnect.
+        """
+        msg = ""
+        try:
+            await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
+        except TimeoutError as e:
+            if "Timeout while waiting for reply" not in str(e):
+                msg = (f"Error: Timeout ({CONNECTION_TIMEOUT} s) in "
+                       "connecting to the Keithley instrument. Please, "
+                       "fix the problem and reconnect to the instrument.")
+        except ConnectionRefusedError as e:
+            msg = ("Error: ConnectionRefused with the Keithley instrument. "
+                   f"Exception: {e}. Please, fix the problem and "
+                   "reconnect to the instrument.")
+        finally:
+            # dump a message in case of error and re-try connecting
+            if msg:
+                if self.status != msg:
+                    self.logger.error(msg)
+                    self.status = msg
+                    self.state = State.UNKNOWN
+                self.connect_task = background(self._connect())
+                return False
+
+        self.status = "Connected"
+
+        return True
 
     async def onInitialization(self):
         self.initialized = True
-    #    self.connect_task = None
+        self.connect_task = None
 
 
-    # async def onDestruction(self):
-    #     """Actions to take when the device is shutdown."""
-    #     if self.connect_task:  # connecting
-    #         self.connect_task.cancel()
-    #     await super().onDestruction()
+    async def onDestruction(self):
+        """Actions to take when the device is shutdown."""
+        if self.connect_task:  # connecting
+            self.connect_task.cancel()
+        await super().onDestruction()
