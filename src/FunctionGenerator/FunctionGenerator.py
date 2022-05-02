@@ -6,8 +6,7 @@
 from asyncio import TimeoutError, wait_for
 
 from karabo.middlelayer import (
-    AccessMode, Bool, Configurable, Double, KaraboValue, Node, State, String,
-    Unit, background, sleep, Slot
+    AccessMode, Double, Node, State, String, Unit, background, Slot
 )
 
 from scpiml import ScpiAutoDevice, ScpiConfigurable
@@ -16,11 +15,35 @@ from ._version import version as deviceVersion
 
 CONNECTION_TIMEOUT = 10  # in seconds
 
+
 class ChannelNode(ScpiConfigurable):
+
+    output_state = String(
+        displayedName='Output state',
+        alias='OUTPut{channel_no}',
+        options={'ON', 'OFF'},
+        description={"Enable the AFG output for the specified channel."})
+    output_state.readOnConnect = True
+
+    def setter(self, value):
+        # convert any answer to string in case of a number
+        try:
+            if value == 1 or value == '1':
+                self.output_state = 'ON'
+            if value == 0 or value == '0':
+                self.output_state = 'OFF'
+            else:
+                self.output_state = value
+
+        except ValueError:
+            self.status = f"Output return value {value} not one " \
+                          "of the valid options"
+
+    output_state.__set__ = setter
 
     functionShape = String(
         displayedName='Function Shape',
-        alias='FUNCtion:SHAPe',
+        alias='SOURce{channel_no}:FUNCtion:SHAPe',
         options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
                  'LOR', 'ERIS', 'EDEC', 'EMEM'},
         description={"Shape of the output waveform. When the specified user "
@@ -45,7 +68,7 @@ class ChannelNode(ScpiConfigurable):
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
-        alias='VOLT:OFFS',
+        alias='SOURce{channel_no}:VOLT:OFFS',
         description={"Offset level for the specified channel. "
                      "If your instrument is a dual-channel "
                      "model and the [SOURce[1|2]]:VOLTage:CONCurrent[:STATe] "
@@ -56,110 +79,23 @@ class ChannelNode(ScpiConfigurable):
 
     amplitude = Double(
         displayedName='Amplitude',
-        alias='VOLT:AMPL',
-        description={"Output amplitude for the specified channel."})
+        alias='SOURce{channel_no}:VOLT:AMPL',
+        description={"Output amplitude for the specified channel."
+                     "Unit is VPP"})
     amplitude.poll = 10
     amplitude.readOnConnect = True
-
-    amplitude_unit = String(
-        displayedName='Amplitude Unit',
-        alias='VOLT:UNIT',
-        options={'VPP', 'VRMS', 'DBM'},
-        description={"Units of output amplitude for the specified channel."},
-        defaultValue='VPP')
-    amplitude_unit.readOnConnect = True
-
-    # output_state = String(
-    #     displayedName='Output state',
-    #     alias='OUTPut{channel_no}',
-    #     options={'ON', 'OFF'},
-    #     description={"Enable the AFG output for the specified channel."},
-    #     defaultValue='OFF')
-    # output_state.readOnConnect = True
-    #
-    # def setter(self, value):
-    #     # convert any answer to string in case of a number
-    #     if value == 1 or '1':
-    #         self.output_state = 'ON'
-    #     if value == 0 or '0':
-    #         self.output_state = 'OFF'
-    #     else:
-    #         self.output_state = value
-    #
-    # output_state.__set__ = setter
-
-
-class FunctionGenerator(ScpiAutoDevice):
-    __version__ = deviceVersion
-
-    async def sendCommand(self, descriptor, value=None, child=None):
-        """Redefinition of the the send and read command coros from the SCPI
-        base. This is done because the Keithley does not reply on commands.
-        We therefore send a command, and then query it straight away."""
-        if not self.connected:
-            return
-
-        async def readCommandResult():
-            return None
-
-        cmd = self.createChildCommand(descriptor, value, child)
-        print("SENDING:", cmd)
-        await self.writeread(cmd, readCommandResult())
-        await self.sendQuery(descriptor, self)
-
-    identification = String(
-        displayedName='Identification',
-        accessMode=AccessMode.READONLY,
-        alias='*IDN',
-        description={"Identification information on the AFG."})
-    identification.readOnConnect = True
-
-    channel_1 = Node(ChannelNode, displayedName='channel 1', alias="SOURce1")
-    channel_2 = Node(ChannelNode, displayedName='channel 2', alias="SOURce2")
-    #channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
-    #channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
-
-    def createChildQuery(self, descr, child):
-        if child is None or child is self:
-            return self.createQuery(descr)
-        else:
-            scpi_add = child.alias.format(channel_no=descr.alias)
-            #return f"{scpi_add}?\n"
-            return f"{child.alias}:{descr.alias}?\n"
-
-
-    def createChildCommand(self, descr, value, child):
-        if child is None or child is self:
-            return self.createCommand(descr, value)
-        else:
-            scpi_add = child.alias.format(channel_no=descr.alias)
-            #return f"{scpi_add} {value.value}\n"\
-            return f"{child.alias}:{descr.alias} {value.value}\n"
-
-    amplitude1 = Double(
-        displayedName='Amplitude1',
-        alias='SOURce1:VOLT:AMPL',
-        description={""})
-    amplitude1.poll = 10
-    amplitude1.readOnConnect = True
-
-    amplitude2 = Double(
-        displayedName='Amplitude2',
-        alias='SOURce2:VOLT:AMPL',
-        description={""})
-    amplitude2.poll = 10
-    amplitude2.readOnConnect = True
+    amplitude.commandFormat = "{alias} {value} VPP"
 
     pulse_width = Double(
         displayedName='Pulse width',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:PULS:WIDT',
+        alias='SOURce{channel_no}:PULS:WIDT',
         description={"Pulse width for the specified channel."})
     pulse_width.readOnConnect = True
 
     burst_state = String(
         displayedName='Burst State',
-        alias='SOURce1:BURSt:STAT',
+        alias='SOURce{channel_no}:BURSt:STAT',
         options={'ON', 'OFF'},
         description={"Enables or disables the burst mode for the "
                      "specified channel."},
@@ -168,9 +104,9 @@ class FunctionGenerator(ScpiAutoDevice):
 
     def setter(self, value):
         # convert any answer to string in case of a number
-        if value == 1 or '1':
+        if value == 1 or value == '1':
             self.burst_state = 'ON'
-        if value == 0 or '0':
+        if value == 0 or value == '0':
             self.burst_state = 'OFF'
         else:
             self.burst_state = value
@@ -186,14 +122,14 @@ class FunctionGenerator(ScpiAutoDevice):
                     'DC: The output keep the DC.'
                     'END: The output keep same as the end point of burst '
                     'waveform.',
-        alias='SOURce1:BURSt:IDLE',
+        alias='SOURce{channel_no}:BURSt:IDLE',
         options={'START', 'DC', 'END', 'OFF'},
         defaultValue='OFF')
     burst_idle.readOnConnect = True
 
     burst_mode = String(
         displayedName='Burst Mode',
-        alias='SOURce1:BURSt:MODE',
+        alias='SOURce{channel_no}:BURSt:MODE',
         options={'TRIG', 'GAT'},
         description={"TRIG: Means that triggered mode is selected for "
                      "burst mode."
@@ -203,7 +139,7 @@ class FunctionGenerator(ScpiAutoDevice):
 
     burst_cycles = String(
         displayedName='Burst Cycles',
-        alias='SOURce1:BURSt:NCYC',
+        alias='SOURce{channel_no}:BURSt:NCYC',
         description={"Number of cycles (burst count) to be output in burst "
                      "mode for the specified channel. The query command "
                      "returns 9.9E+37 if the burst count is set to INFinity."
@@ -221,7 +157,7 @@ class FunctionGenerator(ScpiAutoDevice):
     burst_delay = String(
         displayedName='Burst Delay',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:BURS:TDEL',
+        alias='SOURce{channel_no}:BURS:TDEL',
         description={"Specifies a time delay between the trigger and the "
                      "signal output. This command is available only in the "
                      "Triggered burst mode. "
@@ -240,7 +176,7 @@ class FunctionGenerator(ScpiAutoDevice):
     frequency_start = Double(
         displayedName='Start Frequency',
         unitSymbol=Unit.HERTZ,
-        alias='SOURce1:FREQ:STAR',
+        alias='SOURce{channel_no}:FREQ:STAR',
         description={"Start frequency of sweep for the specified channel. "
                      "This command is always used with the "
                      "[SOURce[1|2]]:FREQuency:STOP command. The setting "
@@ -251,7 +187,7 @@ class FunctionGenerator(ScpiAutoDevice):
     frequency_stop = Double(
         displayedName='Stop Frequency',
         unitSymbol=Unit.HERTZ,
-        alias='SOURce1:FREQ:STOP',
+        alias='SOURce{channel_no}:FREQ:STOP',
         description={"Stop frequency of sweep for the specified channel. "
                      "This command is always used with the "
                      "[SOURce[1|2]]:FREQuency:STARt command. The setting "
@@ -262,7 +198,7 @@ class FunctionGenerator(ScpiAutoDevice):
     sweep_time = Double(
         displayedName='Sweep Time',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:SWE:TIME',
+        alias='SOURce{channel_no}:SWE:TIME',
         description={"Sweep time for the sweep for the specified channel. "
                      "The sweep time does not include hold time and return "
                      "time. The setting range is 1 ms to 500 s."})
@@ -271,7 +207,7 @@ class FunctionGenerator(ScpiAutoDevice):
     sweep_hold_time = Double(
         displayedName='Sweep Hold Time',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:SWE:HTIM',
+        alias='SOURce{channel_no}:SWE:HTIM',
         description={"Sweep hold time. Hold time represents the amount of "
                      "time that the frequency must remain stable after "
                      "reaching the stop frequency."})
@@ -280,7 +216,7 @@ class FunctionGenerator(ScpiAutoDevice):
     sweep_return_time = Double(
         displayedName='Sweep Return Time',
         unitSymbol=Unit.SECOND,
-        alias='SOURce1:SWE:RTIM',
+        alias='SOURce{channel_no}:SWE:RTIM',
         description={"Sweep return time. Return time represents the amount "
                      "of time from stop frequency through start frequency. "
                      "Return time does not include hold time."})
@@ -288,7 +224,7 @@ class FunctionGenerator(ScpiAutoDevice):
 
     sweep_mode = String(
         displayedName='Sweep Mode',
-        alias='SOURce1:SWE:MODE',
+        alias='SOURce{channel_no}:SWE:MODE',
         options={'AUTO', 'MAN'},
         description={"AUTO: Sets the sweep mode to auto; the instrument "
                      "outputs a continuous sweep at a rate specified by "
@@ -297,6 +233,65 @@ class FunctionGenerator(ScpiAutoDevice):
                      "outputs one sweep when a trigger input is received."},
         defaultValue='AUTO')
     sweep_mode.readOnConnect = True
+
+
+class FunctionGenerator(ScpiAutoDevice):
+    __version__ = deviceVersion
+
+    # this device does not return anything after commands
+    async def readCommandResult(self, descriptor, value):
+        return value
+
+    # override method to peak at commands being sent ...
+    async def sendCommand(self, descriptor, value=None, child=None):
+        print("SEND:", self.createChildCommand(descriptor, value, child))
+        await super().sendCommand(descriptor, value, child)
+
+    # async def sendCommand(self, descriptor, value=None, child=None):
+    #     """Redefinition of the the send and read command coros from the SCPI
+    #     base. This is done because the Keithley does not reply on commands.
+    #     We therefore send a command, and then query it straight away."""
+    #     if not self.connected:
+    #         return
+    #
+    #     async def readCommandResult():
+    #         return None
+    #
+    #     cmd = self.createChildCommand(descriptor, value, child)
+    #     print("SENDING", cmd)
+    #     await self.writeread(cmd, readCommandResult())
+    #     await self.sendQuery(descriptor, self if child is None else child)
+
+    identification = String(
+        displayedName='Identification',
+        accessMode=AccessMode.READONLY,
+        alias='*IDN',
+        description={"Identification information on the AFG."})
+    identification.readOnConnect = True
+
+    channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
+    channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
+
+    def createChildQuery(self, descr, child):
+        if child is None or child is self:
+            return self.createQuery(descr)
+        else:
+            return self.createNodeQuery(descr, child)
+
+    def createNodeQuery(self, descr, child):
+        scpi_add = descr.alias.format(channel_no=child.alias)
+        return f"{scpi_add}?\n"
+
+    def createChildCommand(self, descr, value, child):
+        if child is None or child is self:
+            return self.createCommand(descr, value)
+        else:
+            return self.createNodeCommand(descr, value, child)
+
+    def createNodeCommand(self, descr, value, child):
+        scpi_add = descr.alias.format(channel_no=child.alias)
+        return (getattr(descr, "commandFormat", self.command_format)
+                .format(alias=scpi_add, device=self, value=value.value))
 
     # CHANNEL independent parameters
     trigger_mode = String(
@@ -392,7 +387,6 @@ class FunctionGenerator(ScpiAutoDevice):
     async def onInitialization(self):
         self.initialized = True
         self.connect_task = None
-
 
     async def onDestruction(self):
         """Actions to take when the device is shutdown."""
