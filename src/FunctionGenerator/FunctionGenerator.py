@@ -28,12 +28,12 @@ class ChannelNode(ScpiConfigurable):
     def setter(self, value):
         # convert any answer to string in case of a number
         try:
-            if value == 1 or value == '1':
-                self.output_state = 'ON'
-            if value == 0 or value == '0':
+            if value == 0 or value == '0' or value == "OFF":
                 self.output_state = 'OFF'
+            elif value > 0 or value == '1' or value == "ON":
+                self.output_state = 'ON'
             else:
-                self.output_state = value
+                self.output_state = str(value)
 
         except ValueError:
             self.status = f"Output return value {value} not one " \
@@ -81,17 +81,28 @@ class ChannelNode(ScpiConfigurable):
         displayedName='Amplitude',
         alias='SOURce{channel_no}:VOLT:AMPL',
         description={"Output amplitude for the specified channel."
-                     "Unit is VPP"})
+                     "Unit is set by amplitude unit value"})
     amplitude.poll = 10
     amplitude.readOnConnect = True
-    amplitude.commandFormat = "{alias} {value} VPP"
+
+    amplitude_unit = String(
+        displayedName='Amplitude Unit',
+        alias='SOURce{channel_no}:VOLT:UNIT',
+        options={'VPP', 'VRMS', 'DBM'},
+        description={"Units of output amplitude for the specified channel."},
+        defaultValue='VPP')
+    amplitude_unit.readOnConnect = True
 
     pulse_width = Double(
         displayedName='Pulse width',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:PULS:WIDT',
-        description={"Pulse width for the specified channel."})
+        description={"Pulse Width = Period * Duty Cycle / 100"
+                     "The pulse width must be less than the period. "
+                     "The setting range is 0.001% to 99.999% in terms of "
+                     "duty cycle."})
     pulse_width.readOnConnect = True
+    pulse_width.commandFormat = "{alias} {value} s"
 
     burst_state = String(
         displayedName='Burst State',
@@ -104,12 +115,17 @@ class ChannelNode(ScpiConfigurable):
 
     def setter(self, value):
         # convert any answer to string in case of a number
-        if value == 1 or value == '1':
-            self.burst_state = 'ON'
-        if value == 0 or value == '0':
-            self.burst_state = 'OFF'
-        else:
-            self.burst_state = value
+        try:
+            if value == 0 or value == '0' or value == "OFF":
+                self.output_state = 'OFF'
+            elif value > 0 or value == '1' or value == "ON":
+                self.output_state = 'ON'
+            else:
+                self.output_state = str(value)
+
+        except ValueError:
+            self.status = f"Burst state return value {value} not one " \
+                          "of the valid options"
 
     burst_state.__set__ = setter
 
@@ -136,6 +152,7 @@ class ChannelNode(ScpiConfigurable):
                      "GAT: Means gated mode is selected for burst mode."},
         defaultValue='TRIG')
     burst_mode.readOnConnect = True
+
 
     burst_cycles = String(
         displayedName='Burst Cycles',
@@ -166,6 +183,7 @@ class ChannelNode(ScpiConfigurable):
                      "Choose a number in range or MIN or MAX"},
         defaultValue='MIN')
     burst_delay.readOnConnect = True
+    burst_delay.commandFormat = "{alias} {value} s"
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -183,6 +201,7 @@ class ChannelNode(ScpiConfigurable):
                      "range of start frequency depends on the waveform "
                      "selected for sweep."})
     frequency_start.readOnConnect = True
+    frequency_start.commandFormat = "{alias} {value} Hz"
 
     frequency_stop = Double(
         displayedName='Stop Frequency',
@@ -194,6 +213,7 @@ class ChannelNode(ScpiConfigurable):
                      "range of stop frequency depends on the waveform "
                      "selected for sweep."})
     frequency_stop.readOnConnect = True
+    frequency_stop.commandFormat = "{alias} {value} Hz"
 
     sweep_time = Double(
         displayedName='Sweep Time',
@@ -203,6 +223,7 @@ class ChannelNode(ScpiConfigurable):
                      "The sweep time does not include hold time and return "
                      "time. The setting range is 1 ms to 500 s."})
     sweep_time.readOnConnect = True
+    sweep_time.commandFormat = "{alias} {value} s"
 
     sweep_hold_time = Double(
         displayedName='Sweep Hold Time',
@@ -212,6 +233,7 @@ class ChannelNode(ScpiConfigurable):
                      "time that the frequency must remain stable after "
                      "reaching the stop frequency."})
     sweep_hold_time.readOnConnect = True
+    sweep_hold_time.commandFormat = "{alias} {value} s"
 
     sweep_return_time = Double(
         displayedName='Sweep Return Time',
@@ -221,6 +243,7 @@ class ChannelNode(ScpiConfigurable):
                      "of time from stop frequency through start frequency. "
                      "Return time does not include hold time."})
     sweep_return_time.readOnConnect = True
+    sweep_return_time.commandFormat = "{alias} {value} s"
 
     sweep_mode = String(
         displayedName='Sweep Mode',
@@ -242,36 +265,16 @@ class FunctionGenerator(ScpiAutoDevice):
     async def readCommandResult(self, descriptor, value):
         return value
 
+    # TODO: delete after testing
     # override method to peak at commands being sent ...
     async def sendCommand(self, descriptor, value=None, child=None):
         print("SEND:", self.createChildCommand(descriptor, value, child))
         await super().sendCommand(descriptor, value, child)
 
-    # async def sendCommand(self, descriptor, value=None, child=None):
-    #     """Redefinition of the the send and read command coros from the SCPI
-    #     base. This is done because the Keithley does not reply on commands.
-    #     We therefore send a command, and then query it straight away."""
-    #     if not self.connected:
-    #         return
-    #
-    #     async def readCommandResult():
-    #         return None
-    #
-    #     cmd = self.createChildCommand(descriptor, value, child)
-    #     print("SENDING", cmd)
-    #     await self.writeread(cmd, readCommandResult())
-    #     await self.sendQuery(descriptor, self if child is None else child)
-
-    identification = String(
-        displayedName='Identification',
-        accessMode=AccessMode.READONLY,
-        alias='*IDN',
-        description={"Identification information on the AFG."})
-    identification.readOnConnect = True
-
     channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
     channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
 
+    # override methods to create queries and commands for parameters in nodes
     def createChildQuery(self, descr, child):
         if child is None or child is self:
             return self.createQuery(descr)
@@ -294,6 +297,13 @@ class FunctionGenerator(ScpiAutoDevice):
                 .format(alias=scpi_add, device=self, value=value.value))
 
     # CHANNEL independent parameters
+    identification = String(
+        displayedName='Identification',
+        accessMode=AccessMode.READONLY,
+        alias='*IDN',
+        description={"Identification information on the AFG."})
+    identification.readOnConnect = True
+
     trigger_mode = String(
         displayedName='Trigger Mode',
         alias='OUTP:TRIG:MODE',
@@ -329,6 +339,7 @@ class FunctionGenerator(ScpiAutoDevice):
                      "The setting range is 1 μs to 500.0 s."},
         defaultValue=10)
     trigger_time.readOnConnect = True
+    trigger_time.commandFormat = "{alias} {value} s"
 
     run_mode = String(
         displayedName='Run Mode',
