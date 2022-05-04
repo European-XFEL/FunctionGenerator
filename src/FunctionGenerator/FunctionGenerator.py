@@ -9,7 +9,7 @@ from karabo.middlelayer import (
     AccessMode, Double, Node, State, String, Unit, background, Slot
 )
 
-from scpiml import ScpiAutoDevice, ScpiConfigurable
+from scpiml import ScpiDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion
 
@@ -258,7 +258,7 @@ class ChannelNode(ScpiConfigurable):
     sweep_mode.readOnConnect = True
 
 
-class FunctionGenerator(ScpiAutoDevice):
+class FunctionGenerator(ScpiDevice):
     __version__ = deviceVersion
 
     # this device does not return anything after commands
@@ -274,22 +274,9 @@ class FunctionGenerator(ScpiAutoDevice):
     channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
     channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
 
-    # override methods to create queries and commands for parameters in nodes
-    def createChildQuery(self, descr, child):
-        if child is None or child is self:
-            return self.createQuery(descr)
-        else:
-            return self.createNodeQuery(descr, child)
-
     def createNodeQuery(self, descr, child):
         scpi_add = descr.alias.format(channel_no=child.alias)
         return f"{scpi_add}?\n"
-
-    def createChildCommand(self, descr, value, child):
-        if child is None or child is self:
-            return self.createCommand(descr, value)
-        else:
-            return self.createNodeCommand(descr, value, child)
 
     def createNodeCommand(self, descr, value, child):
         scpi_add = descr.alias.format(channel_no=child.alias)
@@ -374,13 +361,13 @@ class FunctionGenerator(ScpiAutoDevice):
             await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
         except TimeoutError as e:
             if "Timeout while waiting for reply" not in str(e):
-                msg = (f"Error: Timeout ({CONNECTION_TIMEOUT} s) in "
-                       "connecting to the Keithley instrument. Please, "
-                       "fix the problem and reconnect to the instrument.")
+                msg = (f"Error: No connection established within "
+                       f"timeout ({CONNECTION_TIMEOUT} s). Please, "
+                       "fix the network problem and press 'connect'.")
         except ConnectionRefusedError as e:
-            msg = ("Error: ConnectionRefused with the Keithley instrument. "
-                   f"Exception: {e}. Please, fix the problem and "
-                   "reconnect to the instrument.")
+            msg = ("Error: ConnectionRefused. "
+                   f"Exception: {e}. Please, fix the network or hardware "
+                   f"problem and press 'connect'.")
         finally:
             # dump a message in case of error and re-try connecting
             if msg:
@@ -398,6 +385,7 @@ class FunctionGenerator(ScpiAutoDevice):
     async def onInitialization(self):
         self.initialized = True
         self.connect_task = None
+        self.connect_task = await self.connect()
 
     async def onDestruction(self):
         """Actions to take when the device is shutdown."""
