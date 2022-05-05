@@ -153,7 +153,6 @@ class ChannelNode(ScpiConfigurable):
         defaultValue='TRIG')
     burst_mode.readOnConnect = True
 
-
     burst_cycles = String(
         displayedName='Burst Cycles',
         alias='SOURce{channel_no}:BURSt:NCYC',
