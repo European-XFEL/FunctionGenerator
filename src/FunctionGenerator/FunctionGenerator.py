@@ -273,9 +273,22 @@ class FunctionGenerator(ScpiDevice):
     channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
     channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
 
+    # override methods to create queries and commands for parameters in nodes
+    def createChildQuery(self, descr, child):
+        if child is None or child is self:
+            return self.createQuery(descr)
+        else:
+            return self.createNodeQuery(descr, child)
+
     def createNodeQuery(self, descr, child):
         scpi_add = descr.alias.format(channel_no=child.alias)
         return f"{scpi_add}?\n"
+
+    def createChildCommand(self, descr, value, child):
+        if child is None or child is self:
+            return self.createCommand(descr, value)
+        else:
+            return self.createNodeCommand(descr, value, child)
 
     def createNodeCommand(self, descr, value, child):
         scpi_add = descr.alias.format(channel_no=child.alias)
