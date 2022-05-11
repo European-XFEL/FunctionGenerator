@@ -18,28 +18,28 @@ CONNECTION_TIMEOUT = 10  # in seconds
 
 class ChannelNode(ScpiConfigurable):
 
-    output_state = String(
+    outputState = String(
         displayedName='Output state',
         alias='OUTPut{channel_no}',
         options={'ON', 'OFF'},
         description={"Enable the AFG output for the specified channel."})
-    output_state.readOnConnect = True
+    outputState.readOnConnect = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
         try:
             if value == 0 or value == '0' or value == "OFF":
-                self.output_state = 'OFF'
+                self.outputState = 'OFF'
             elif value > 0 or value == '1' or value == "ON":
-                self.output_state = 'ON'
+                self.outputState = 'ON'
             else:
-                self.output_state = str(value)
+                self.outputState = str(value)
 
         except ValueError:
             self.status = f"Output return value {value} not one " \
                           "of the valid options"
 
-    output_state.__set__ = setter
+    outputState.__set__ = setter
 
     functionShape = String(
         displayedName='Function Shape',
@@ -85,15 +85,15 @@ class ChannelNode(ScpiConfigurable):
     amplitude.poll = 10
     amplitude.readOnConnect = True
 
-    amplitude_unit = String(
+    amplitudeUnit = String(
         displayedName='Amplitude Unit',
         alias='SOURce{channel_no}:VOLT:UNIT',
         options={'VPP', 'VRMS', 'DBM'},
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
-    amplitude_unit.readOnConnect = True
+    amplitudeUnit.readOnConnect = True
 
-    pulse_width = Double(
+    pulseWidth = Double(
         displayedName='Pulse width',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:PULS:WIDT',
@@ -101,35 +101,35 @@ class ChannelNode(ScpiConfigurable):
                      "The pulse width must be less than the period. "
                      "The setting range is 0.001% to 99.999% in terms of "
                      "duty cycle."})
-    pulse_width.readOnConnect = True
-    pulse_width.commandFormat = "{alias} {value} s"
+    pulseWidth.readOnConnect = True
+    pulseWidth.commandFormat = "{alias} {value} s"
 
-    burst_state = String(
+    burstState = String(
         displayedName='Burst State',
         alias='SOURce{channel_no}:BURSt:STAT',
         options={'ON', 'OFF'},
         description={"Enables or disables the burst mode for the "
                      "specified channel."},
         defaultValue='OFF')
-    burst_state.readOnConnect = True
+    burstState.readOnConnect = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
         try:
             if value == 0 or value == '0' or value == "OFF":
-                self.output_state = 'OFF'
+                self.outputState = 'OFF'
             elif value > 0 or value == '1' or value == "ON":
-                self.output_state = 'ON'
+                self.outputState = 'ON'
             else:
-                self.output_state = str(value)
+                self.outputState = str(value)
 
         except ValueError:
             self.status = f"Burst state return value {value} not one " \
                           "of the valid options"
 
-    burst_state.__set__ = setter
+    burstState.__set__ = setter
 
-    burst_idle = String(
+    burstIdle = String(
         displayedName='Burst Idle',
         description='Idle state means the output level between two '
                     'burst output. '
@@ -141,9 +141,9 @@ class ChannelNode(ScpiConfigurable):
         alias='SOURce{channel_no}:BURSt:IDLE',
         options={'START', 'DC', 'END', 'OFF'},
         defaultValue='OFF')
-    burst_idle.readOnConnect = True
+    burstIdle.readOnConnect = True
 
-    burst_mode = String(
+    burstMode = String(
         displayedName='Burst Mode',
         alias='SOURce{channel_no}:BURSt:MODE',
         options={'TRIG', 'GAT'},
@@ -151,9 +151,9 @@ class ChannelNode(ScpiConfigurable):
                      "burst mode."
                      "GAT: Means gated mode is selected for burst mode."},
         defaultValue='TRIG')
-    burst_mode.readOnConnect = True
+    burstMode.readOnConnect = True
 
-    burst_cycles = String(
+    burstCycles = String(
         displayedName='Burst Cycles',
         alias='SOURce{channel_no}:BURSt:NCYC',
         description={"Number of cycles (burst count) to be output in burst "
@@ -162,15 +162,15 @@ class ChannelNode(ScpiConfigurable):
                      "Choose a number between 1 and 1,000,000 or "
                      "INF, MIN or MAX"},
         defaultValue='INF')
-    burst_cycles.readOnConnect = True
+    burstCycles.readOnConnect = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
-        self.burst_cycles = str(value)
+        self.burstCycles = str(value)
 
-    burst_cycles.__set__ = setter
+    burstCycles.__set__ = setter
 
-    burst_delay = String(
+    burstDelay = String(
         displayedName='Burst Delay',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:BURS:TDEL',
@@ -181,16 +181,16 @@ class ChannelNode(ScpiConfigurable):
                      "resolution of 100 ps or 5 digits."
                      "Choose a number in range or MIN or MAX"},
         defaultValue='MIN')
-    burst_delay.readOnConnect = True
-    burst_delay.commandFormat = "{alias} {value} s"
+    burstDelay.readOnConnect = True
+    burstDelay.commandFormat = "{alias} {value} s"
 
     def setter(self, value):
         # convert any answer to string in case of a number
-        self.burst_delay = str(value)
+        self.burstDelay = str(value)
 
-    burst_delay.__set__ = setter
+    burstDelay.__set__ = setter
 
-    frequency_start = Double(
+    frequencyStart = Double(
         displayedName='Start Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STAR',
@@ -199,10 +199,10 @@ class ChannelNode(ScpiConfigurable):
                      "[SOURce[1|2]]:FREQuency:STOP command. The setting "
                      "range of start frequency depends on the waveform "
                      "selected for sweep."})
-    frequency_start.readOnConnect = True
-    frequency_start.commandFormat = "{alias} {value} Hz"
+    frequencyStart.readOnConnect = True
+    frequencyStart.commandFormat = "{alias} {value} Hz"
 
-    frequency_stop = Double(
+    frequencyStop = Double(
         displayedName='Stop Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STOP',
@@ -211,40 +211,40 @@ class ChannelNode(ScpiConfigurable):
                      "[SOURce[1|2]]:FREQuency:STARt command. The setting "
                      "range of stop frequency depends on the waveform "
                      "selected for sweep."})
-    frequency_stop.readOnConnect = True
-    frequency_stop.commandFormat = "{alias} {value} Hz"
+    frequencyStop.readOnConnect = True
+    frequencyStop.commandFormat = "{alias} {value} Hz"
 
-    sweep_time = Double(
+    sweepTime = Double(
         displayedName='Sweep Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:TIME',
         description={"Sweep time for the sweep for the specified channel. "
                      "The sweep time does not include hold time and return "
                      "time. The setting range is 1 ms to 500 s."})
-    sweep_time.readOnConnect = True
-    sweep_time.commandFormat = "{alias} {value} s"
+    sweepTime.readOnConnect = True
+    sweepTime.commandFormat = "{alias} {value} s"
 
-    sweep_hold_time = Double(
+    sweepHoldTime = Double(
         displayedName='Sweep Hold Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:HTIM',
         description={"Sweep hold time. Hold time represents the amount of "
                      "time that the frequency must remain stable after "
                      "reaching the stop frequency."})
-    sweep_hold_time.readOnConnect = True
-    sweep_hold_time.commandFormat = "{alias} {value} s"
+    sweepHoldTime.readOnConnect = True
+    sweepHoldTime.commandFormat = "{alias} {value} s"
 
-    sweep_return_time = Double(
+    sweepReturnTime = Double(
         displayedName='Sweep Return Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:RTIM',
         description={"Sweep return time. Return time represents the amount "
                      "of time from stop frequency through start frequency. "
                      "Return time does not include hold time."})
-    sweep_return_time.readOnConnect = True
-    sweep_return_time.commandFormat = "{alias} {value} s"
+    sweepReturnTime.readOnConnect = True
+    sweepReturnTime.commandFormat = "{alias} {value} s"
 
-    sweep_mode = String(
+    sweepMode = String(
         displayedName='Sweep Mode',
         alias='SOURce{channel_no}:SWE:MODE',
         options={'AUTO', 'MAN'},
@@ -254,7 +254,7 @@ class ChannelNode(ScpiConfigurable):
                      "MAN: Sets the sweep mode to manual; the instrument "
                      "outputs one sweep when a trigger input is received."},
         defaultValue='AUTO')
-    sweep_mode.readOnConnect = True
+    sweepMode.readOnConnect = True
 
 
 class FunctionGenerator(ScpiDevice):
@@ -303,7 +303,7 @@ class FunctionGenerator(ScpiDevice):
         description={"Identification information on the AFG."})
     identification.readOnConnect = True
 
-    trigger_mode = String(
+    triggerMode = String(
         displayedName='Trigger Mode',
         alias='OUTP:TRIG:MODE',
         options={'TRIG', 'SYNC'},
@@ -318,18 +318,18 @@ class FunctionGenerator(ScpiDevice):
                      "than Burst Inf-Cycles, TRIGger, and SYNC have the "
                      "same effect."},
         defaultValue='TRIG')
-    trigger_mode.readOnConnect = True
+    triggerMode.readOnConnect = True
 
-    trigger_source = String(
+    triggerSource = String(
         displayedName='Trigger Source',
         alias='TRIG:SOUR',
         options={'TIM', 'EXT'},
         description={"TIM: Specifies an internal clock as the trigger "
                      "source. EXT: use external trigger source"},
         defaultValue='TIM')
-    trigger_source.readOnConnect = True
+    triggerSource.readOnConnect = True
 
-    trigger_time = Double(
+    triggerTime = Double(
         displayedName='Trigger Time',
         alias='TRIG:TIM',
         unitSymbol=Unit.SECOND,
@@ -337,10 +337,10 @@ class FunctionGenerator(ScpiDevice):
                      "internal clock as the trigger source. "
                      "The setting range is 1 μs to 500.0 s."},
         defaultValue=10)
-    trigger_time.readOnConnect = True
-    trigger_time.commandFormat = "{alias} {value} s"
+    triggerTime.readOnConnect = True
+    triggerTime.commandFormat = "{alias} {value} s"
 
-    run_mode = String(
+    runMode = String(
         displayedName='Run Mode',
         alias='SEQC:RMOD',
         options={'CONT', 'TRIG', 'GAT', 'SEQ'},
@@ -349,7 +349,7 @@ class FunctionGenerator(ScpiDevice):
                      "GAT: Sets Run Mode to Gated."
                      "SEQ: Sets Run Mode to Sequence."},
         defaultValue='CONT')
-    run_mode.readOnConnect = True
+    runMode.readOnConnect = True
 
     @Slot(
         displayedName="Connect",
