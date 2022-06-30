@@ -30,10 +30,11 @@ class ChannelNode(ScpiConfigurable):
         try:
             if value == 0 or value == '0' or value == "OFF":
                 self.outputState = 'OFF'
-            elif value > 0 or value == '1' or value == "ON":
+            elif value != 0 or value == '1' or value == "ON":
                 self.outputState = 'ON'
             else:
-                self.outputState = str(value)
+                self.status = f"Unknown value received for Output " \
+                              f"State: {value}"
 
         except ValueError:
             self.status = f"Output return value {value} not one " \
@@ -92,6 +93,14 @@ class ChannelNode(ScpiConfigurable):
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
+
+    @Double(
+        displayedName='Amplitude Poll Frequency',
+        description={"Update frequency for amplitude values"}
+    )
+    async def amplitudePollFreq(self, value):
+        self.amplitude.poll = value
+        self.amplitudePollFreq = value
 
     pulseWidth = Double(
         displayedName='Pulse width',
