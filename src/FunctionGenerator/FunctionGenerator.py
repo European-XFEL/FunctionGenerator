@@ -412,4 +412,5 @@ class FunctionGenerator(ScpiDevice):
         """Actions to take when the device is shutdown."""
         if self.connect_task:  # connecting
             self.connect_task.cancel()
+        await super().close_connection()
         await super().onDestruction()
