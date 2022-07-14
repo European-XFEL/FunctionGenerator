@@ -94,13 +94,13 @@ class ChannelNode(ScpiConfigurable):
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
 
-    @Double(
-        displayedName='Amplitude Poll Frequency',
-        description={"Update frequency for amplitude values"}
-    )
-    async def amplitudePollFreq(self, value):
-        self.amplitude.poll = value
-        self.amplitudePollFreq = value
+    # @Double(
+    #     displayedName='Amplitude Poll Frequency',
+    #     description="Update frequency for amplitude values")
+    # async def amplitudePollFreq(self, value):
+    #     if value is not None:
+    #         descr = getattr(self.__class__, "amplitude")
+    #         descr.poll = value
 
     pulseWidth = Double(
         displayedName='Pulse width',
@@ -127,7 +127,7 @@ class ChannelNode(ScpiConfigurable):
         try:
             if value == 0 or value == '0' or value == "OFF":
                 self.outputState = 'OFF'
-            elif value > 0 or value == '1' or value == "ON":
+            elif value != 0 or value == '1' or value == "ON":
                 self.outputState = 'ON'
             else:
                 self.outputState = str(value)
@@ -412,5 +412,6 @@ class FunctionGenerator(ScpiDevice):
         """Actions to take when the device is shutdown."""
         if self.connect_task:  # connecting
             self.connect_task.cancel()
-        await super().close_connection()
+        if self.state != State.UNKNOWN:
+            await self.close_connection()
         await super().onDestruction()
