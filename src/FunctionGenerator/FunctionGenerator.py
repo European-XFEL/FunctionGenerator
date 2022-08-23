@@ -6,7 +6,7 @@
 from asyncio import TimeoutError, wait_for
 
 from karabo.middlelayer import (
-    AccessMode, Double, Node, State, String, Unit, background, Slot
+    AccessMode, Double, Node, State, String, Unit, Slot, background
 )
 
 from scpiml import ScpiDevice, ScpiConfigurable
@@ -93,14 +93,6 @@ class ChannelNode(ScpiConfigurable):
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
-
-    # @Double(
-    #     displayedName='Amplitude Poll Frequency',
-    #     description="Update frequency for amplitude values")
-    # async def amplitudePollFreq(self, value):
-    #     if value is not None:
-    #         descr = getattr(self.__class__, "amplitude")
-    #         descr.poll = value
 
     pulseWidth = Double(
         displayedName='Pulse width',
@@ -286,12 +278,6 @@ class FunctionGenerator(ScpiDevice):
     # this device does not return anything after commands
     async def readCommandResult(self, descriptor, value):
         return value
-
-    # TODO: delete after testing
-    # override method to peak at commands being sent ...
-    async def sendCommand(self, descriptor, value=None, child=None):
-        print("SEND:", self.createChildCommand(descriptor, value, child))
-        await super().sendCommand(descriptor, value, child)
 
     channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
     channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
