@@ -118,11 +118,11 @@ class ChannelNode(ScpiConfigurable):
         # convert any answer to string in case of a number
         try:
             if value == 0 or value == '0' or value == "OFF":
-                self.outputState = 'OFF'
+                self.burstState = 'OFF'
             elif value != 0 or value == '1' or value == "ON":
-                self.outputState = 'ON'
+                self.burstState = 'ON'
             else:
-                self.outputState = str(value)
+                self.burstState = str(value)
 
         except ValueError:
             self.status = f"Burst state return value {value} not one " \
