@@ -107,10 +107,15 @@ class ChannelNode(ScpiConfigurable):
 
     def setter(self, value):
         #  check if value in allowed range for period set
+        if not self.pulsePeriod:
+            self.pulseWidth = value
+            return
         if value > self.pulsePeriod:
             self.status = f"Invalid value for pulseWidth: {value}." \
-                          "Has to smaller than the period " \
-                          f"of {self.pulsePeriod}"
+                          "Has to be smaller than the " \
+                          f"period {self.pulsePeriod}"
+        else:
+            self.pulseWidth = value
 
     pulseWidth.__set__ = setter
 
