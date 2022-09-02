@@ -105,6 +105,23 @@ class ChannelNode(ScpiConfigurable):
     pulseWidth.readOnConnect = True
     pulseWidth.commandFormat = "{alias} {value} s"
 
+    def setter(self, value):
+        #  check if value in allowed range for period set
+        if value > self.pulsePeriod:
+            self.status = f"Invalid value for pulseWidth: {value}." \
+                          "Has to smaller than the period " \
+                          f"of {self.pulsePeriod}"
+
+    pulseWidth.__set__ = setter
+
+    pulsePeriod = Double(
+        displayedName='Pulse period',
+        unitSymbol=Unit.SECOND,
+        alias='SOURce{channel_no}:PULS:PER',
+        description={"Period of pulse waveform."})
+    pulsePeriod.readOnConnect = True
+    pulsePeriod.commandFormat = "{alias} {value} s"
+
     burstState = String(
         displayedName='Burst State',
         alias='SOURce{channel_no}:BURSt:STAT',
