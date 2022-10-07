@@ -111,6 +111,7 @@ class ChannelNode(ScpiConfigurable):
             self.pulseWidth = value
             return
         if value > self.pulsePeriod:
+            # TODO: code gets here but status is not shown in GUI
             self.status = f"Invalid value for pulseWidth: {value}." \
                           "Has to be smaller than the " \
                           f"period {self.pulsePeriod}"
@@ -305,21 +306,9 @@ class FunctionGenerator(ScpiDevice):
     channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
 
     # override methods to create queries and commands for parameters in nodes
-    def createChildQuery(self, descr, child):
-        if child is None or child is self:
-            return self.createQuery(descr)
-        else:
-            return self.createNodeQuery(descr, child)
-
     def createNodeQuery(self, descr, child):
         scpi_add = descr.alias.format(channel_no=child.alias)
         return f"{scpi_add}?\n"
-
-    def createChildCommand(self, descr, value, child):
-        if child is None or child is self:
-            return self.createCommand(descr, value)
-        else:
-            return self.createNodeCommand(descr, value, child)
 
     def createNodeCommand(self, descr, value, child):
         scpi_add = descr.alias.format(channel_no=child.alias)
@@ -428,7 +417,7 @@ class FunctionGenerator(ScpiDevice):
     async def onInitialization(self):
         self.initialized = True
         self.connect_task = None
-        self.connect_task = await self.connect()
+        await self.connect()
 
     async def onDestruction(self):
         """Actions to take when the device is shutdown."""
