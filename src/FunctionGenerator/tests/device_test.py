@@ -13,7 +13,7 @@ from ..FunctionGenerator import FunctionGenerator
 conf = {
     "classId": "FunctionGenerator",
     "_deviceId_": "TestFunctionGenerator",
-    "greeting": "buongiorno"
+    "url": ""
 }
 
 
@@ -27,8 +27,4 @@ class TestFunctionGenerator(DeviceTest):
 
     @async_tst
     async def test_greet(self):
-        for greet in ("Buongiorno", "Guten Tag", "Moin Moin"):
-            self.dev.greeting = greet
-            self.assertEqual(self.dev.greeting.value, greet)
-            await self.dev.hello()
-            self.assertEqual(self.dev.greeting.value, "Hello world!")
+        pass
