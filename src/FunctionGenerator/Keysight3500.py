@@ -5,16 +5,14 @@
 #############################################################################
 
 from karabo.middlelayer import (
-    AccessMode, Double, Node, State, String, Unit, Slot, background
+    Double, Node, String, Unit
 )
 
-from scpiml import ScpiConfigurable
-
 from ._version import version as deviceVersion
-from .FunctionGenerator import FunctionGenerator
+from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
 
 
-class KeysightChannelNode(ScpiConfigurable):
+class KeysightChannelNode(ChannelNodeBase):
 
     pulseWidth = Double(
         displayedName='Pulse width',
@@ -90,9 +88,11 @@ class Keysight3500(FunctionGenerator):
 
     async def onInitialization(self):
         # inject keysight specific parameters
-        self.__class__.keysight_ch_1 = Node(KeysightChannelNode,
-                             displayedName='keysight ch 1', alias="1")
-        self.__class__.keysight_ch_2 = Node(KeysightChannelNode,
-                             displayedName='keysight ch 2', alias="2")
+        self.__class__.ch_1 = Node(KeysightChannelNode,
+                                   displayedName='channel 1',
+                                   alias="1")
+        self.__class__.ch_2 = Node(KeysightChannelNode,
+                                   displayedName='channel 2',
+                                   alias="2")
         await self.publishInjectedParameters()
-        await super.onInitialization()
+        await super().onInitialization()

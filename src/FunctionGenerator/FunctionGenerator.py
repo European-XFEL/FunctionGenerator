@@ -6,7 +6,7 @@
 from asyncio import TimeoutError, wait_for
 
 from karabo.middlelayer import (
-    AccessMode, Double, Injectable, Node, State, String, Unit,
+    AccessMode, Double, Injectable, State, String, Unit,
     Slot, background
 )
 
@@ -17,7 +17,7 @@ from ._version import version as deviceVersion
 CONNECTION_TIMEOUT = 10  # in seconds
 
 
-class ChannelNode(ScpiConfigurable):
+class ChannelNodeBase(ScpiConfigurable):
 
     outputState = String(
         displayedName='Output state',
@@ -209,8 +209,10 @@ class FunctionGenerator(Injectable, ScpiDevice):
     async def readCommandResult(self, descriptor, value):
         return value
 
-    channel_1 = Node(ChannelNode, displayedName='channel 1', alias="1")
-    channel_2 = Node(ChannelNode, displayedName='channel 2', alias="2")
+    # create the nodes in the specific implementation inheriting from
+    # ChannelNodeBase
+    # channel_1 = Node(ChannelNodeBase, displayedName='channel 1', alias="1")
+    # channel_2 = Node(ChannelNodeBase, displayedName='channel 2', alias="2")
 
     # override methods to create queries and commands for parameters in nodes
     def createNodeQuery(self, descr, child):
