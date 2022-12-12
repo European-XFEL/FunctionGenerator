@@ -14,6 +14,29 @@ from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
 
 class AFGChannelNode(ChannelNodeBase):
 
+    functionShape = String(
+        displayedName='Function Shape',
+        alias='SOURce{channel_no}:FUNCtion',
+        options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
+                 'LOR', 'ERIS', 'EDEC', 'EMEM'},
+        description={"Shape of the output waveform. When the specified user "
+                     "memory is deleted, this command causes an error if you "
+                     "select the user memory. "
+                     "If you select a waveform shape that is not allowed with "
+                     "a particular modulation, sweep, or burst, Run mode "
+                     "automatically changes to Continuous."},
+        defaultValue='PULS')
+    functionShape.readOnConnect = True
+
+    def setter(self, value):
+        value = str(value)
+        try:
+            self.functionShape = value
+        except ValueError:
+            self.status = f"Function shape return value {value} not one " \
+                          "of the valid options"
+
+    functionShape.__set__ = setter
     pulseWidth = Double(
         displayedName='Pulse width',
         unitSymbol=Unit.SECOND,
@@ -81,20 +104,6 @@ class AFGChannelNode(ChannelNodeBase):
         self.burstDelay = str(value)
 
     burstDelay.__set__ = setter
-
-    frequency = Double(
-        displayedName='Frequency',
-        unitSymbol=Unit.HERTZ,
-        alias='SOURce{channel_no}:FREQ',
-        description={"Frequency of output waveform for the specified channel. "
-                     "This command is available when the Run Mode is set to "
-                     "other than Sweep. The setting range of output frequency "
-                     "depends on the type of output waveform. If you change "
-                     "the type of output waveform, it might change the output "
-                     "frequency because changing waveform types impacts on "
-                     "the setting range of output frequency."})
-    frequency.readOnConnect = True
-    frequency.commandFormat = "{alias} {value} Hz"
 
     sweepMode = String(
         displayedName='Sweep Mode',

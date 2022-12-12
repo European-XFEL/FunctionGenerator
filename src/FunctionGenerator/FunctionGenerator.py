@@ -23,7 +23,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Output state',
         alias='OUTPut{channel_no}',
         options={'ON', 'OFF'},
-        description={"Enable the AFG output for the specified channel."})
+        description={"Enable the output for the channel."})
     outputState.readOnConnect = True
 
     def setter(self, value):
@@ -43,39 +43,11 @@ class ChannelNodeBase(ScpiConfigurable):
 
     outputState.__set__ = setter
 
-    functionShape = String(
-        displayedName='Function Shape',
-        alias='SOURce{channel_no}:FUNCtion',
-        options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
-                 'LOR', 'ERIS', 'EDEC', 'EMEM'},
-        description={"Shape of the output waveform. When the specified user "
-                     "memory is deleted, this command causes an error if you "
-                     "select the user memory. "
-                     "If you select a waveform shape that is not allowed with "
-                     "a particular modulation, sweep, or burst, Run mode "
-                     "automatically changes to Continuous."},
-        defaultValue='PULS')
-    functionShape.readOnConnect = True
-
-    def setter(self, value):
-        value = str(value)
-        try:
-            self.functionShape = value
-        except ValueError:
-            self.status = f"Function shape return value {value} not one " \
-                          "of the valid options"
-
-    functionShape.__set__ = setter
-
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:OFFS',
-        description={"Offset level for the specified channel. "
-                     "If your instrument is a dual-channel "
-                     "model and the [SOURce[1|2]]:VOLTage:CONCurrent[:STATe] "
-                     "command is set to ON, then the offset level of the "
-                     "other channel is also the same value."})
+        description={"Offset level for the specified channel. "})
     offset.readOnConnect = True
     offset.poll = 10
 
@@ -94,6 +66,14 @@ class ChannelNodeBase(ScpiConfigurable):
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
+
+    frequency = Double(
+        displayedName='Frequency',
+        unitSymbol=Unit.HERTZ,
+        alias='SOURce{channel_no}:FUNCtion:ARBitrary:FREQ',
+        description={"Frequency of arbitrary waveform for the channel."})
+    frequency.readOnConnect = True
+    frequency.commandFormat = "{alias} {value} Hz"
 
     burstState = String(
         displayedName='Burst State',
@@ -134,10 +114,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Burst Cycles',
         alias='SOURce{channel_no}:BURSt:NCYC',
         description={"Number of cycles (burst count) to be output in burst "
-                     "mode for the specified channel. The query command "
-                     "returns 9.9E+37 if the burst count is set to INFinity."
-                     "Choose a number between 1 and 1,000,000 or "
-                     "INF, MIN or MAX"},
+                     "mode for the specified channel."},
         defaultValue='INF')
     burstCycles.readOnConnect = True
 
@@ -151,11 +128,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Start Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STAR',
-        description={"Start frequency of sweep for the specified channel. "
-                     "This command is always used with the "
-                     "[SOURce[1|2]]:FREQuency:STOP command. The setting "
-                     "range of start frequency depends on the waveform "
-                     "selected for sweep."})
+        description={"Start frequency of sweep for the specified channel."})
     frequencyStart.readOnConnect = True
     frequencyStart.commandFormat = "{alias} {value} Hz"
 
@@ -163,11 +136,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Stop Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STOP',
-        description={"Stop frequency of sweep for the specified channel. "
-                     "This command is always used with the "
-                     "[SOURce[1|2]]:FREQuency:STARt command. The setting "
-                     "range of stop frequency depends on the waveform "
-                     "selected for sweep."})
+        description={"Stop frequency of sweep for the specified channel."})
     frequencyStop.readOnConnect = True
     frequencyStop.commandFormat = "{alias} {value} Hz"
 
@@ -175,9 +144,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Sweep Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:TIME',
-        description={"Sweep time for the sweep for the specified channel. "
-                     "The sweep time does not include hold time and return "
-                     "time. The setting range is 1 ms to 500 s."})
+        description={"Sweep time for the sweep for the specified channel."})
     sweepTime.readOnConnect = True
     sweepTime.commandFormat = "{alias} {value} s"
 
@@ -185,9 +152,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Sweep Hold Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:HTIM',
-        description={"Sweep hold time. Hold time represents the amount of "
-                     "time that the frequency must remain stable after "
-                     "reaching the stop frequency."})
+        description={"Sweep hold time."})
     sweepHoldTime.readOnConnect = True
     sweepHoldTime.commandFormat = "{alias} {value} s"
 
@@ -196,8 +161,7 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:RTIM',
         description={"Sweep return time. Return time represents the amount "
-                     "of time from stop frequency through start frequency. "
-                     "Return time does not include hold time."})
+                     "of time from stop frequency through start frequency."})
     sweepReturnTime.readOnConnect = True
     sweepReturnTime.commandFormat = "{alias} {value} s"
 
