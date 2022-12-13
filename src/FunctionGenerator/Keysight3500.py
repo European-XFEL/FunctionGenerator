@@ -5,7 +5,7 @@
 #############################################################################
 
 from karabo.middlelayer import (
-    Double, Node, Overwrite, String, Unit, Slot
+    Double, Node, String, Unit
 )
 
 from ._version import version as deviceVersion
