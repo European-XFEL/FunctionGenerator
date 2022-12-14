@@ -225,6 +225,9 @@ class FunctionGenerator(Injectable, ScpiDevice):
             msg = ("Error: ConnectionRefused. "
                    f"Exception: {e}. Please, fix the network or hardware "
                    f"problem and press 'connect'.")
+        except ValueError as e:
+            msg = ("ValueError on connect. "
+                   f"Exception: {e}.")
         finally:
             # dump a message in case of error and re-try connecting
             if msg:
