@@ -172,9 +172,9 @@ class AFG31000(FunctionGenerator):
 
     async def onInitialization(self):
         # inject afg specific parameters
-        self.__class__.ch_1 = Node(AFGChannelNode,
-                                   displayedName='channel 1', alias="1")
-        self.__class__.ch_2 = Node(AFGChannelNode,
-                                   displayedName='channel 2', alias="2")
+        self.__class__.channel_1 = Node(AFGChannelNode,
+                                        displayedName='channel 1', alias="1")
+        self.__class__.channel_2 = Node(AFGChannelNode,
+                                        displayedName='channel 2', alias="2")
         await self.publishInjectedParameters()
         await super().onInitialization()

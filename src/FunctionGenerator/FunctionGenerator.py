@@ -43,6 +43,13 @@ class ChannelNodeBase(ScpiConfigurable):
 
     outputState.__set__ = setter
 
+    outputPol = String(
+        displayedName='Output polarity',
+        alias='OUTPut{channel_no}:POL',
+        options={'NORM', 'INV'},
+        description={"Inverts waveform relative to offset voltage."})
+    outputPol.readOnConnect = True
+
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
@@ -66,6 +73,22 @@ class ChannelNodeBase(ScpiConfigurable):
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
+
+    voltageLow = Double(
+        displayedName='Voltage Low',
+        unitSymbol=Unit.VOLT,
+        alias='SOURce{channel_no}:VOLT:LOW',
+        description={"Waveform low voltage"})
+    voltageLow.readOnConnect = True
+    voltageLow.poll = 10
+
+    voltageHigh = Double(
+        displayedName='Voltage High',
+        unitSymbol=Unit.VOLT,
+        alias='SOURce{channel_no}:VOLT:HIGH',
+        description={"Waveform high voltage"})
+    voltageHigh.readOnConnect = True
+    voltageHigh.poll = 10
 
     frequency = Double(
         displayedName='Frequency',

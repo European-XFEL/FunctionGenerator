@@ -14,34 +14,11 @@ from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
 
 class KeysightChannelNode(ChannelNodeBase):
 
-    outputPol = String(
-        displayedName='Output polarity',
-        alias='OUTPut{channel_no}:POL',
-        options={'NORM', 'INV'},
-        description={"Inverts waveform relative to offset voltage."})
-    outputPol.readOnConnect = True
-
     outputLoad = Double(
         displayedName='Output load',
         alias='OUTPut{channel_no}:LOAD',
         description={"Sets expected output termination.."})
     outputLoad.readOnConnect = True
-
-    voltageLow = Double(
-        displayedName='Voltage Low',
-        unitSymbol=Unit.VOLT,
-        alias='SOURce{channel_no}:VOLT:LOW',
-        description={"Waveform low voltage"})
-    voltageLow.readOnConnect = True
-    voltageLow.poll = 10
-
-    voltageHigh = Double(
-        displayedName='Voltage High',
-        unitSymbol=Unit.VOLT,
-        alias='SOURce{channel_no}:VOLT:HIGH',
-        description={"Waveform high voltage"})
-    voltageHigh.readOnConnect = True
-    voltageHigh.poll = 10
 
     functionShape = String(
         displayedName='Function Shape',
@@ -142,11 +119,11 @@ class Keysight3500(FunctionGenerator):
 
     async def onInitialization(self):
         # inject keysight specific parameters
-        self.__class__.ch_1 = Node(KeysightChannelNode,
-                                   displayedName='channel 1',
-                                   alias="1")
-        self.__class__.ch_2 = Node(KeysightChannelNode,
-                                   displayedName='channel 2',
-                                   alias="2")
+        self.__class__.channel_1 = Node(KeysightChannelNode,
+                                        displayedName='channel 1',
+                                        alias="1")
+        self.__class__.channel_2 = Node(KeysightChannelNode,
+                                        displayedName='channel 2',
+                                        alias="2")
         await self.publishInjectedParameters()
         await super().onInitialization()
