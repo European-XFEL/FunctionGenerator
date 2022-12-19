@@ -114,7 +114,7 @@ class KeysightChannelNode(ChannelNodeBase):
     triggerTime.commandFormat = "{alias} {value} s"
 
 
-class Keysight3500(FunctionGenerator):
+class Keysight33512(FunctionGenerator):
     __version__ = deviceVersion
 
     async def onInitialization(self):
