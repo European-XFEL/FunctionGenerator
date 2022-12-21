@@ -117,7 +117,7 @@ class KeysightChannelNode(ChannelNodeBase):
     triggerTime.commandFormat = "{alias} {value} s"
 
 
-class Keysight33512(FunctionGenerator):
+class Keysight33511(FunctionGenerator):
     __version__ = deviceVersion
 
     async def onInitialization(self):
@@ -125,8 +125,5 @@ class Keysight33512(FunctionGenerator):
         self.__class__.channel_1 = Node(KeysightChannelNode,
                                         displayedName='channel 1',
                                         alias="1")
-        self.__class__.channel_2 = Node(KeysightChannelNode,
-                                        displayedName='channel 2',
-                                        alias="2")
         await self.publishInjectedParameters()
         await super().onInitialization()
