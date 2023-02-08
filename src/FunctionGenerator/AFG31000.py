@@ -4,11 +4,11 @@
 # Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
 #############################################################################
 
+from asyncio import sleep
 from karabo.middlelayer import (
     Double, Node, String, Unit
 )
 
-from ._version import version as deviceVersion
 from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
 
 
@@ -19,12 +19,12 @@ class AFGChannelNode(ChannelNodeBase):
         alias='SOURce{channel_no}:FUNCtion',
         options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
                  'LOR', 'ERIS', 'EDEC', 'EMEM'},
-        description={"Shape of the output waveform. When the specified user "
-                     "memory is deleted, this command causes an error if you "
-                     "select the user memory. "
-                     "If you select a waveform shape that is not allowed with "
-                     "a particular modulation, sweep, or burst, Run mode "
-                     "automatically changes to Continuous."},
+        description="Shape of the output waveform. When the specified user "
+                    "memory is deleted, this command causes an error if you "
+                    "select the user memory. "
+                    "If you select a waveform shape that is not allowed with "
+                    "a particular modulation, sweep, or burst, Run mode "
+                    "automatically changes to Continuous.",
         defaultValue='PULS')
     functionShape.readOnConnect = True
     functionShape.commandReadBack = True
@@ -38,14 +38,15 @@ class AFGChannelNode(ChannelNodeBase):
                           "of the valid options"
 
     functionShape.__set__ = setter
+
     pulseWidth = Double(
-        displayedName='Pulse width',
+        displayedName='Pulse Width',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:PULS:WIDT',
-        description={"Pulse Width = Period * Duty Cycle / 100"
-                     "The pulse width must be less than the period. "
-                     "The setting range is 0.001% to 99.999% in terms of "
-                     "duty cycle."})
+        description="Pulse Width = Period * Duty Cycle / 100. "
+                    "The pulse width must be less than the period. "
+                    "The setting range is 0.001% to 99.999% in terms of "
+                    "duty cycle.")
     pulseWidth.readOnConnect = True
     pulseWidth.commandReadBack = True
     pulseWidth.commandFormat = "{alias} {value} s"
@@ -55,21 +56,22 @@ class AFGChannelNode(ChannelNodeBase):
         if not self.pulsePeriod:
             self.pulseWidth = value
             return
-        if value > self.pulsePeriod:
-            # TODO: code gets here but status is not shown in GUI
-            self.status = f"Invalid value for pulseWidth: {value}." \
-                          "Has to be smaller than the " \
+        elif value > self.pulsePeriod:
+            self.status = f"Invalid value for pulseWidth: {value}. " \
+                          f"Has to be smaller than the " \
                           f"period {self.pulsePeriod}"
+            # TODO: code gets here but status is not shown in GUI, try this:
+            await sleep(1)
         else:
             self.pulseWidth = value
 
     pulseWidth.__set__ = setter
 
     pulsePeriod = Double(
-        displayedName='Pulse period',
+        displayedName='Pulse Period',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:PULS:PER',
-        description={"Period of pulse waveform."})
+        description="Period of pulse waveform.")
     pulsePeriod.readOnConnect = True
     pulsePeriod.commandReadBack = True
     pulsePeriod.commandFormat = "{alias} {value} s"
@@ -98,50 +100,43 @@ class AFGChannelNode(ChannelNodeBase):
                      "Triggered burst mode. "
                      "The setting range is 0.0 ns to 85.000 s with "
                      "resolution of 100 ps or 5 digits."
-                     "Choose a number in range or MIN or MAX"},
+                     "Choose a number in range or MIN or MAX."},
         defaultValue='MIN')
     burstDelay.readOnConnect = True
     burstDelay.commandReadBack = True
     burstDelay.commandFormat = "{alias} {value} s"
 
-    def setter(self, value):
-        # convert any answer to string in case of a number
-        self.burstDelay = str(value)
-
-    burstDelay.__set__ = setter
-
     sweepMode = String(
         displayedName='Sweep Mode',
         alias='SOURce{channel_no}:SWE:MODE',
         options={'AUTO', 'MAN'},
-        description={"AUTO: Sets the sweep mode to auto; the instrument "
-                     "outputs a continuous sweep at a rate specified by "
-                     "Sweep Time, Hold Time, and Return Time."
-                     "MAN: Sets the sweep mode to manual; the instrument "
-                     "outputs one sweep when a trigger input is received."},
+        description="AUTO: Sets the sweep mode to auto; the instrument "
+                    "outputs a continuous sweep at a rate specified by "
+                    "Sweep Time, Hold Time, and Return Time."
+                    "MAN: Sets the sweep mode to manual; the instrument "
+                    "outputs one sweep when a trigger input is received.",
         defaultValue='AUTO')
     sweepMode.readOnConnect = True
     sweepMode.commandReadBack = True
 
 
 class AFG31000(FunctionGenerator):
-    __version__ = deviceVersion
 
     # CHANNEL independent parameters
     triggerMode = String(
         displayedName='Trigger Mode',
         alias='OUTP:TRIG:MODE',
         options={'TRIG', 'SYNC'},
-        description={"The mode (trigger or sync) for Trigger Output signal. "
-                     "When the burst count is set to Inf-Cycles in burst mode,"
-                     "TRIGger indicates that the infinite number of cycles "
-                     "of waveform will be output from the Trigger Output "
-                     "connector. When the burst count is set to Inf-Cycles "
-                     "in burst mode, SYNC indicates that one pulse waveform "
-                     "is output from the Trigger Output connector when the "
-                     "Inf-Cycles starts. When Run Mode is specified other "
-                     "than Burst Inf-Cycles, TRIGger, and SYNC have the "
-                     "same effect."},
+        description="The mode (trigger or sync) for Trigger Output signal. "
+                    "When the burst count is set to Inf-Cycles in burst mode,"
+                    "TRIGger indicates that the infinite number of cycles "
+                    "of waveform will be output from the Trigger Output "
+                    "connector. When the burst count is set to Inf-Cycles "
+                    "in burst mode, SYNC indicates that one pulse waveform "
+                    "is output from the Trigger Output connector when the "
+                    "Inf-Cycles starts. When Run Mode is specified other "
+                    "than Burst Inf-Cycles, TRIGger, and SYNC have the "
+                    "same effect.",
         defaultValue='TRIG')
     triggerMode.readOnConnect = True
     triggerMode.commandReadBack = True
@@ -150,8 +145,8 @@ class AFG31000(FunctionGenerator):
         displayedName='Trigger Source',
         alias='TRIG:SOUR',
         options={'TIM', 'EXT'},
-        description={"TIM: Specifies an internal clock as the trigger "
-                     "source. EXT: use external trigger source"},
+        description="TIM: Specifies an internal clock as the trigger "
+                    "source. EXT: use external trigger source.",
         defaultValue='TIM')
     triggerSource.readOnConnect = True
     triggerSource.commandReadBack = True
@@ -160,10 +155,11 @@ class AFG31000(FunctionGenerator):
         displayedName='Trigger Time',
         alias='TRIG:TIM',
         unitSymbol=Unit.SECOND,
-        description={"Period of an internal clock when you select the "
-                     "internal clock as the trigger source. "
-                     "The setting range is 1 μs to 500.0 s."},
-        defaultValue=10)
+        description="Period of an internal clock when you select the "
+                    "internal clock as the trigger source.",
+        defaultValue=10,
+        minInc=1e-6,
+        maxInc=500.0)
     triggerTime.readOnConnect = True
     triggerTime.commandReadBack = True
     triggerTime.commandFormat = "{alias} {value} s"
@@ -172,10 +168,10 @@ class AFG31000(FunctionGenerator):
         displayedName='Run Mode',
         alias='SEQC:RMOD',
         options={'CONT', 'TRIG', 'GAT', 'SEQ'},
-        description={"CONT: Sets Run Mode to Continuous."
-                     "TRIG: Sets Run Mode to Triggered."
-                     "GAT: Sets Run Mode to Gated."
-                     "SEQ: Sets Run Mode to Sequence."},
+        description="CONT: Sets Run Mode to Continuous."
+                    "TRIG: Sets Run Mode to Triggered."
+                    "GAT: Sets Run Mode to Gated."
+                    "SEQ: Sets Run Mode to Sequence.",
         defaultValue='CONT')
     runMode.readOnConnect = True
     runMode.commandReadBack = True

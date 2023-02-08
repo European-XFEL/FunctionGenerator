@@ -5,13 +5,11 @@
 #############################################################################
 
 from karabo.middlelayer import Node
-from ._version import version as deviceVersion
 from .FunctionGenerator import FunctionGenerator
 from .KeysightChannelNode import KeysightChannelNode
 
 
 class Keysight33511(FunctionGenerator):
-    __version__ = deviceVersion
 
     async def onInitialization(self):
         # inject keysight specific parameters

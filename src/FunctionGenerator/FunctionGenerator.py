@@ -20,10 +20,10 @@ CONNECTION_TIMEOUT = 10  # in seconds
 class ChannelNodeBase(ScpiConfigurable):
 
     outputState = String(
-        displayedName='Output state',
+        displayedName='Output State',
         alias='OUTPut{channel_no}',
         options={'ON', 'OFF'},
-        description={"Enable the output for the channel."})
+        description="Enable the output for the channel.")
     outputState.readOnConnect = True
     outputState.commandReadBack = True
 
@@ -45,10 +45,10 @@ class ChannelNodeBase(ScpiConfigurable):
     outputState.__set__ = setter
 
     outputPol = String(
-        displayedName='Output polarity',
+        displayedName='Output Polarity',
         alias='OUTPut{channel_no}:POL',
         options={'NORM', 'INV'},
-        description={"Inverts waveform relative to offset voltage."})
+        description="Inverts waveform relative to offset voltage.")
     outputPol.readOnConnect = True
     outputPol.commandReadBack = True
 
@@ -56,7 +56,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:OFFS',
-        description={"Offset level for the specified channel. "})
+        description="Offset level for the specified channel.")
     offset.readOnConnect = True
     offset.commandReadBack = True
     offset.poll = 10
@@ -64,8 +64,8 @@ class ChannelNodeBase(ScpiConfigurable):
     amplitude = Double(
         displayedName='Amplitude',
         alias='SOURce{channel_no}:VOLT',
-        description={"Output amplitude for the specified channel."
-                     "Unit is set by amplitude unit value"})
+        description="Output amplitude for the specified channel. "
+                    "Unit is set by amplitude unit value.")
     amplitude.readOnConnect = True
     amplitude.commandReadBack = True
     amplitude.poll = 10
@@ -74,7 +74,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Amplitude Unit',
         alias='SOURce{channel_no}:VOLT:UNIT',
         options={'VPP', 'VRMS', 'DBM'},
-        description={"Units of output amplitude for the specified channel."},
+        description="Units of output amplitude for the specified channel.",
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
     amplitudeUnit.commandReadBack = True
@@ -91,7 +91,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Voltage High',
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:HIGH',
-        description={"Waveform high voltage"})
+        description="Waveform high voltage.")
     voltageHigh.readOnConnect = True
     voltageHigh.commandReadBack = True
 
@@ -99,7 +99,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FUNCtion:ARBitrary:FREQ',
-        description={"Frequency of arbitrary waveform for the channel."})
+        description="Frequency of arbitrary waveform for the channel.")
     frequency.readOnConnect = True
     frequency.commandReadBack = True
     frequency.commandFormat = "{alias} {value} Hz"
@@ -108,8 +108,8 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Burst State',
         alias='SOURce{channel_no}:BURSt:STAT',
         options={'ON', 'OFF'},
-        description={"Enables or disables the burst mode for the "
-                     "specified channel."},
+        description="Enables or disables the burst mode for the "
+                    "specified channel.",
         defaultValue='OFF')
     burstState.readOnConnect = True
     burstState.commandReadBack = True
@@ -134,9 +134,9 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Burst Mode',
         alias='SOURce{channel_no}:BURSt:MODE',
         options={'TRIG', 'GAT'},
-        description={"TRIG: Means that triggered mode is selected for "
-                     "burst mode."
-                     "GAT: Means gated mode is selected for burst mode."},
+        description="TRIG: Means that triggered mode is selected for "
+                    "burst mode."
+                    "GAT: Means gated mode is selected for burst mode.",
         defaultValue='TRIG')
     burstMode.readOnConnect = True
     burstMode.commandReadBack = True
@@ -144,8 +144,8 @@ class ChannelNodeBase(ScpiConfigurable):
     burstCycles = String(
         displayedName='Burst Cycles',
         alias='SOURce{channel_no}:BURSt:NCYC',
-        description={"Number of cycles (burst count) to be output in burst "
-                     "mode for the specified channel."},
+        description="Number of cycles (burst count) to be output in burst "
+                    "mode for the specified channel.",
         defaultValue='INF')
     burstCycles.readOnConnect = True
     burstCycles.commandReadBack = True
@@ -160,7 +160,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Start Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STAR',
-        description={"Start frequency of sweep for the specified channel."})
+        description="Start frequency of sweep for the specified channel.")
     frequencyStart.readOnConnect = True
     frequencyStart.commandReadBack = True
     frequencyStart.commandFormat = "{alias} {value} Hz"
@@ -169,7 +169,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Stop Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STOP',
-        description={"Stop frequency of sweep for the specified channel."})
+        description="Stop frequency of sweep for the specified channel.")
     frequencyStop.readOnConnect = True
     frequencyStop.commandReadBack = True
     frequencyStop.commandFormat = "{alias} {value} Hz"
@@ -178,7 +178,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Sweep Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:TIME',
-        description={"Sweep time for the sweep for the specified channel."})
+        description="Sweep time for the sweep for the specified channel.")
     sweepTime.readOnConnect = True
     sweepTime.commandReadBack = True
     sweepTime.commandFormat = "{alias} {value} s"
@@ -187,7 +187,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Sweep Hold Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:HTIM',
-        description={"Sweep hold time."})
+        description="Sweep hold time.")
     sweepHoldTime.readOnConnect = True
     sweepHoldTime.commandReadBack = True
     sweepHoldTime.commandFormat = "{alias} {value} s"
@@ -196,8 +196,8 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Sweep Return Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:RTIM',
-        description={"Sweep return time. Return time represents the amount "
-                     "of time from stop frequency through start frequency."})
+        description="Sweep return time. Return time represents the amount "
+                    "of time from stop frequency through start frequency.")
     sweepReturnTime.readOnConnect = True
     sweepReturnTime.commandReadBack = True
     sweepReturnTime.commandFormat = "{alias} {value} s"
@@ -230,7 +230,7 @@ class FunctionGenerator(Injectable, ScpiDevice):
         displayedName='Identification',
         accessMode=AccessMode.READONLY,
         alias='*IDN',
-        description={"Identification information on the AFG."})
+        description="Identification information on the AFG.")
     identification.readOnConnect = True
 
     @Slot(
@@ -257,14 +257,13 @@ class FunctionGenerator(Injectable, ScpiDevice):
             if "Timeout while waiting for reply" not in str(e):
                 msg = (f"Error: No connection established within "
                        f"timeout ({CONNECTION_TIMEOUT} s). Please, "
-                       "fix the network problem and press 'connect'.")
+                       f"fix the network problem and press 'connect'.")
         except ConnectionRefusedError as e:
-            msg = ("Error: ConnectionRefused. "
+            msg = (f"Error: ConnectionRefused. "
                    f"Exception: {e}. Please, fix the network or hardware "
                    f"problem and press 'connect'.")
         except ValueError as e:
-            msg = ("ValueError on connect. "
-                   f"Exception: {e}.")
+            msg = (f"ValueError on connect. Exception: {e}.")
         finally:
             # dump a message in case of error and re-try connecting
             if msg:
@@ -282,7 +281,6 @@ class FunctionGenerator(Injectable, ScpiDevice):
     async def onInitialization(self):
         self.initialized = True
         self.connect_task = None
-        await self.connect()
 
     async def onDestruction(self):
         """Actions to take when the device is shutdown."""
