@@ -27,6 +27,7 @@ class AFGChannelNode(ChannelNodeBase):
                      "automatically changes to Continuous."},
         defaultValue='PULS')
     functionShape.readOnConnect = True
+    functionShape.commandReadBack = True
 
     def setter(self, value):
         value = str(value)
@@ -46,6 +47,7 @@ class AFGChannelNode(ChannelNodeBase):
                      "The setting range is 0.001% to 99.999% in terms of "
                      "duty cycle."})
     pulseWidth.readOnConnect = True
+    pulseWidth.commandReadBack = True
     pulseWidth.commandFormat = "{alias} {value} s"
 
     def setter(self, value):
@@ -69,6 +71,7 @@ class AFGChannelNode(ChannelNodeBase):
         alias='SOURce{channel_no}:PULS:PER',
         description={"Period of pulse waveform."})
     pulsePeriod.readOnConnect = True
+    pulsePeriod.commandReadBack = True
     pulsePeriod.commandFormat = "{alias} {value} s"
 
     burstIdle = String(
@@ -84,6 +87,7 @@ class AFGChannelNode(ChannelNodeBase):
         options={'START', 'DC', 'END', 'OFF'},
         defaultValue='OFF')
     burstIdle.readOnConnect = True
+    burstIdle.commandReadBack = True
 
     burstDelay = String(
         displayedName='Burst Delay',
@@ -97,6 +101,7 @@ class AFGChannelNode(ChannelNodeBase):
                      "Choose a number in range or MIN or MAX"},
         defaultValue='MIN')
     burstDelay.readOnConnect = True
+    burstDelay.commandReadBack = True
     burstDelay.commandFormat = "{alias} {value} s"
 
     def setter(self, value):
@@ -116,6 +121,7 @@ class AFGChannelNode(ChannelNodeBase):
                      "outputs one sweep when a trigger input is received."},
         defaultValue='AUTO')
     sweepMode.readOnConnect = True
+    sweepMode.commandReadBack = True
 
 
 class AFG31000(FunctionGenerator):
@@ -138,6 +144,7 @@ class AFG31000(FunctionGenerator):
                      "same effect."},
         defaultValue='TRIG')
     triggerMode.readOnConnect = True
+    triggerMode.commandReadBack = True
 
     triggerSource = String(
         displayedName='Trigger Source',
@@ -147,6 +154,7 @@ class AFG31000(FunctionGenerator):
                      "source. EXT: use external trigger source"},
         defaultValue='TIM')
     triggerSource.readOnConnect = True
+    triggerSource.commandReadBack = True
 
     triggerTime = Double(
         displayedName='Trigger Time',
@@ -157,6 +165,7 @@ class AFG31000(FunctionGenerator):
                      "The setting range is 1 μs to 500.0 s."},
         defaultValue=10)
     triggerTime.readOnConnect = True
+    triggerTime.commandReadBack = True
     triggerTime.commandFormat = "{alias} {value} s"
 
     runMode = String(
@@ -169,6 +178,7 @@ class AFG31000(FunctionGenerator):
                      "SEQ: Sets Run Mode to Sequence."},
         defaultValue='CONT')
     runMode.readOnConnect = True
+    runMode.commandReadBack = True
 
     async def onInitialization(self):
         # inject afg specific parameters

@@ -25,6 +25,7 @@ class ChannelNodeBase(ScpiConfigurable):
         options={'ON', 'OFF'},
         description={"Enable the output for the channel."})
     outputState.readOnConnect = True
+    outputState.commandReadBack = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -49,6 +50,7 @@ class ChannelNodeBase(ScpiConfigurable):
         options={'NORM', 'INV'},
         description={"Inverts waveform relative to offset voltage."})
     outputPol.readOnConnect = True
+    outputPol.commandReadBack = True
 
     offset = Double(
         displayedName='Offset',
@@ -56,6 +58,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:VOLT:OFFS',
         description={"Offset level for the specified channel. "})
     offset.readOnConnect = True
+    offset.commandReadBack = True
     offset.poll = 10
 
     amplitude = Double(
@@ -63,8 +66,9 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:VOLT',
         description={"Output amplitude for the specified channel."
                      "Unit is set by amplitude unit value"})
-    amplitude.poll = 10
     amplitude.readOnConnect = True
+    amplitude.commandReadBack = True
+    amplitude.poll = 10
 
     amplitudeUnit = String(
         displayedName='Amplitude Unit',
@@ -73,6 +77,7 @@ class ChannelNodeBase(ScpiConfigurable):
         description={"Units of output amplitude for the specified channel."},
         defaultValue='VPP')
     amplitudeUnit.readOnConnect = True
+    amplitudeUnit.commandReadBack = True
 
     voltageLow = Double(
         displayedName='Voltage Low',
@@ -80,7 +85,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:VOLT:LOW',
         description={"Waveform low voltage"})
     voltageLow.readOnConnect = True
-    voltageLow.poll = 10
+    voltageLow.commandReadBack = True
 
     voltageHigh = Double(
         displayedName='Voltage High',
@@ -88,7 +93,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:VOLT:HIGH',
         description={"Waveform high voltage"})
     voltageHigh.readOnConnect = True
-    voltageHigh.poll = 10
+    voltageHigh.commandReadBack = True
 
     frequency = Double(
         displayedName='Frequency',
@@ -96,6 +101,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:FUNCtion:ARBitrary:FREQ',
         description={"Frequency of arbitrary waveform for the channel."})
     frequency.readOnConnect = True
+    frequency.commandReadBack = True
     frequency.commandFormat = "{alias} {value} Hz"
 
     burstState = String(
@@ -106,6 +112,7 @@ class ChannelNodeBase(ScpiConfigurable):
                      "specified channel."},
         defaultValue='OFF')
     burstState.readOnConnect = True
+    burstState.commandReadBack = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -132,6 +139,7 @@ class ChannelNodeBase(ScpiConfigurable):
                      "GAT: Means gated mode is selected for burst mode."},
         defaultValue='TRIG')
     burstMode.readOnConnect = True
+    burstMode.commandReadBack = True
 
     burstCycles = String(
         displayedName='Burst Cycles',
@@ -140,6 +148,7 @@ class ChannelNodeBase(ScpiConfigurable):
                      "mode for the specified channel."},
         defaultValue='INF')
     burstCycles.readOnConnect = True
+    burstCycles.commandReadBack = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -153,6 +162,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:FREQ:STAR',
         description={"Start frequency of sweep for the specified channel."})
     frequencyStart.readOnConnect = True
+    frequencyStart.commandReadBack = True
     frequencyStart.commandFormat = "{alias} {value} Hz"
 
     frequencyStop = Double(
@@ -161,6 +171,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:FREQ:STOP',
         description={"Stop frequency of sweep for the specified channel."})
     frequencyStop.readOnConnect = True
+    frequencyStop.commandReadBack = True
     frequencyStop.commandFormat = "{alias} {value} Hz"
 
     sweepTime = Double(
@@ -169,6 +180,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:SWE:TIME',
         description={"Sweep time for the sweep for the specified channel."})
     sweepTime.readOnConnect = True
+    sweepTime.commandReadBack = True
     sweepTime.commandFormat = "{alias} {value} s"
 
     sweepHoldTime = Double(
@@ -177,6 +189,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:SWE:HTIM',
         description={"Sweep hold time."})
     sweepHoldTime.readOnConnect = True
+    sweepHoldTime.commandReadBack = True
     sweepHoldTime.commandFormat = "{alias} {value} s"
 
     sweepReturnTime = Double(
@@ -186,6 +199,7 @@ class ChannelNodeBase(ScpiConfigurable):
         description={"Sweep return time. Return time represents the amount "
                      "of time from stop frequency through start frequency."})
     sweepReturnTime.readOnConnect = True
+    sweepReturnTime.commandReadBack = True
     sweepReturnTime.commandFormat = "{alias} {value} s"
 
 
