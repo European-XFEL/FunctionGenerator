@@ -135,7 +135,7 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:BURSt:MODE',
         options={'TRIG', 'GAT'},
         description="TRIG: Means that triggered mode is selected for "
-                    "burst mode."
+                    "burst mode. "
                     "GAT: Means gated mode is selected for burst mode.",
         defaultValue='TRIG')
     burstMode.readOnConnect = True

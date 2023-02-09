@@ -99,7 +99,7 @@ class AFGChannelNode(ChannelNodeBase):
                      "signal output. This command is available only in the "
                      "Triggered burst mode. "
                      "The setting range is 0.0 ns to 85.000 s with "
-                     "resolution of 100 ps or 5 digits."
+                     "resolution of 100 ps or 5 digits. "
                      "Choose a number in range or MIN or MAX."},
         defaultValue='MIN')
     burstDelay.readOnConnect = True
@@ -112,7 +112,7 @@ class AFGChannelNode(ChannelNodeBase):
         options={'AUTO', 'MAN'},
         description="AUTO: Sets the sweep mode to auto; the instrument "
                     "outputs a continuous sweep at a rate specified by "
-                    "Sweep Time, Hold Time, and Return Time."
+                    "Sweep Time, Hold Time, and Return Time. "
                     "MAN: Sets the sweep mode to manual; the instrument "
                     "outputs one sweep when a trigger input is received.",
         defaultValue='AUTO')
@@ -171,19 +171,10 @@ class AFG31000(FunctionGenerator):
         displayedName='Run Mode',
         alias='SEQC:RMOD',
         options={'CONT', 'TRIG', 'GAT', 'SEQ'},
-        description="CONT: Sets Run Mode to Continuous."
-                    "TRIG: Sets Run Mode to Triggered."
-                    "GAT: Sets Run Mode to Gated."
+        description="CONT: Sets Run Mode to Continuous. "
+                    "TRIG: Sets Run Mode to Triggered. "
+                    "GAT: Sets Run Mode to Gated. "
                     "SEQ: Sets Run Mode to Sequence.",
         defaultValue='CONT')
     runMode.readOnConnect = True
     runMode.commandReadBack = True
-
-    # async def onInitialization(self):
-    #     # inject afg specific parameters
-    #     self.__class__.channel_1 = Node(AFGChannelNode,
-    #                                     displayedName='channel 1', alias="1")
-    #     self.__class__.channel_2 = Node(AFGChannelNode,
-    #                                     displayedName='channel 2', alias="2")
-    #     await self.publishInjectedParameters()
-    #     await super().onInitialization()
