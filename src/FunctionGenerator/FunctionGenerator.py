@@ -6,7 +6,7 @@
 from asyncio import TimeoutError, wait_for
 
 from karabo.middlelayer import (
-    AccessMode, Double, Injectable, State, String, Unit,
+    AccessMode, Double, State, String, Unit,
     Slot, background
 )
 
@@ -203,7 +203,7 @@ class ChannelNodeBase(ScpiConfigurable):
     sweepReturnTime.commandFormat = "{alias} {value} s"
 
 
-class FunctionGenerator(Injectable, ScpiDevice):
+class FunctionGenerator(ScpiDevice):
     __version__ = deviceVersion
 
     # this device does not return anything after commands

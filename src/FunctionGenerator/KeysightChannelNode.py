@@ -56,7 +56,7 @@ class KeysightChannelNode(ChannelNodeBase):
                           "Has to be smaller than the " \
                           f"period {self.pulsePeriod}"
             # TODO: code gets here but status is not shown in GUI, try this:
-            await sleep(1)
+            sleep(1)
         else:
             self.pulseWidth = value
 

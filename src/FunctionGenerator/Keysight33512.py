@@ -11,13 +11,9 @@ from .KeysightChannelNode import KeysightChannelNode
 
 class Keysight33512(FunctionGenerator):
 
-    async def onInitialization(self):
-        # inject keysight specific parameters
-        self.__class__.channel_1 = Node(KeysightChannelNode,
-                                        displayedName='channel 1',
-                                        alias="1")
-        self.__class__.channel_2 = Node(KeysightChannelNode,
-                                        displayedName='channel 2',
-                                        alias="2")
-        await self.publishInjectedParameters()
-        await super().onInitialization()
+    channel_1 = Node(KeysightChannelNode,
+                     displayedName='channel 1',
+                     alias="1")
+    channel_2 = Node(KeysightChannelNode,
+                     displayedName='channel 2',
+                     alias="2")

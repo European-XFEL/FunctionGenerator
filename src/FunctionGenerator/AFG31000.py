@@ -61,7 +61,7 @@ class AFGChannelNode(ChannelNodeBase):
                           f"Has to be smaller than the " \
                           f"period {self.pulsePeriod}"
             # TODO: code gets here but status is not shown in GUI, try this:
-            await sleep(1)
+            sleep(1)
         else:
             self.pulseWidth = value
 
@@ -122,6 +122,9 @@ class AFGChannelNode(ChannelNodeBase):
 
 class AFG31000(FunctionGenerator):
 
+    channel_1 = Node(AFGChannelNode, displayedName='channel 1', alias="1")
+    channel_2 = Node(AFGChannelNode, displayedName='channel 2', alias="2")
+
     # CHANNEL independent parameters
     triggerMode = String(
         displayedName='Trigger Mode',
@@ -176,11 +179,11 @@ class AFG31000(FunctionGenerator):
     runMode.readOnConnect = True
     runMode.commandReadBack = True
 
-    async def onInitialization(self):
-        # inject afg specific parameters
-        self.__class__.channel_1 = Node(AFGChannelNode,
-                                        displayedName='channel 1', alias="1")
-        self.__class__.channel_2 = Node(AFGChannelNode,
-                                        displayedName='channel 2', alias="2")
-        await self.publishInjectedParameters()
-        await super().onInitialization()
+    # async def onInitialization(self):
+    #     # inject afg specific parameters
+    #     self.__class__.channel_1 = Node(AFGChannelNode,
+    #                                     displayedName='channel 1', alias="1")
+    #     self.__class__.channel_2 = Node(AFGChannelNode,
+    #                                     displayedName='channel 2', alias="2")
+    #     await self.publishInjectedParameters()
+    #     await super().onInitialization()
