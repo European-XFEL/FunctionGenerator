@@ -10,7 +10,7 @@ from karabo.middlelayer import (
     Slot, background
 )
 
-from scpiml import ScpiDevice, ScpiConfigurable
+from scpiml import ScpiAutoDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion
 
@@ -18,6 +18,14 @@ CONNECTION_TIMEOUT = 10  # in seconds
 
 
 class ChannelNodeBase(ScpiConfigurable):
+
+    @Slot(displayedName="On", allowedStates=[State.NORMAL])
+    async def channelOn(self):
+        key = f"channel_{self.alias}.outputState"
+        descr = getattr(self.__class__, "outputState")
+        # timeout on readback because scpi readCommandResult is used
+        # not the overwritten one from this device
+        await self.sendCommand(descr, "ON")
 
     outputState = String(
         displayedName='Output State',
@@ -47,7 +55,7 @@ class ChannelNodeBase(ScpiConfigurable):
     outputPol = String(
         displayedName='Output Polarity',
         alias='OUTPut{channel_no}:POL',
-        options={'NORM', 'INV'},
+        options={'NORM', 'INV', "bull"},
         description="Inverts waveform relative to offset voltage.")
     outputPol.readOnConnect = True
     outputPol.commandReadBack = True
@@ -203,12 +211,13 @@ class ChannelNodeBase(ScpiConfigurable):
     sweepReturnTime.commandFormat = "{alias} {value} s"
 
 
-class FunctionGenerator(ScpiDevice):
+class FunctionGenerator(ScpiAutoDevice):
     __version__ = deviceVersion
 
     # this device does not return anything after commands
     async def readCommandResult(self, descriptor, value):
-        return value
+        print("MINE", descriptor.alias, value)
+        return None
 
     # create the nodes in the specific implementation inheriting from
     # ChannelNodeBase
@@ -233,59 +242,60 @@ class FunctionGenerator(ScpiDevice):
         description="Identification information on the AFG.")
     identification.readOnConnect = True
 
-    @Slot(
-        displayedName="Connect",
-        allowedStates=[State.UNKNOWN]
-    )
-    async def connect(self):
-        self.state = State.CHANGING
-        self.status = "Connecting..."
-        if self.connect_task:
-            self.connect_task.cancel()
-        self.connect_task = background(self._connect())
-
-    async def _connect(self):
-        """Connects to the instrument.
-
-        In case of failures the state is set to UNKNOWN and the device tries
-        to reconnect.
-        """
-        msg = ""
-        try:
-            await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
-        except TimeoutError as e:
-            if "Timeout while waiting for reply" not in str(e):
-                msg = (f"Error: No connection established within "
-                       f"timeout ({CONNECTION_TIMEOUT} s). Please, "
-                       f"fix the network problem and press 'connect'.")
-        except ConnectionRefusedError as e:
-            msg = (f"Error: ConnectionRefused. "
-                   f"Exception: {e}. Please, fix the network or hardware "
-                   f"problem and press 'connect'.")
-        except ValueError as e:
-            msg = (f"ValueError on connect. Exception: {e}.")
-        finally:
-            # dump a message in case of error and re-try connecting
-            if msg:
-                if self.status != msg:
-                    self.logger.error(msg)
-                    self.status = msg
-                    self.state = State.UNKNOWN
-                self.connect_task = background(self._connect())
-                return False
-
-        self.status = "Connected"
-
-        return True
-
-    async def onInitialization(self):
-        self.initialized = True
-        self.connect_task = None
-
-    async def onDestruction(self):
-        """Actions to take when the device is shutdown."""
-        if self.connect_task:  # connecting
-            self.connect_task.cancel()
-        if self.state != State.UNKNOWN:
-            await self.close_connection()
-        await super().onDestruction()
+    # @Slot(
+    #     displayedName="Connect",
+    #     allowedStates=[State.UNKNOWN]
+    # )
+    # async def connect(self):
+    #     self.state = State.CHANGING
+    #     self.status = "Connecting..."
+    #     if self.connect_task:
+    #         self.connect_task.cancel()
+    #     self.connect_task = background(self._connect())
+    #
+    # async def _connect(self):
+    #     """Connects to the instrument.
+    #
+    #     In case of failures the state is set to UNKNOWN and the device tries
+    #     to reconnect.
+    #     """
+    #     msg = ""
+    #     try:
+    #         await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
+    #     except TimeoutError as e:
+    #         if "Timeout while waiting for reply" not in str(e):
+    #             msg = (f"Error: No connection established within "
+    #                    f"timeout ({CONNECTION_TIMEOUT} s). Please, "
+    #                    f"fix the network problem and press 'connect'.")
+    #     except ConnectionRefusedError as e:
+    #         msg = (f"Error: ConnectionRefused. "
+    #                f"Exception: {e}. Please, fix the network or hardware "
+    #                f"problem and press 'connect'.")
+    #     except ValueError as e:
+    #         msg = (f"ValueError on connect. Exception: {e}.")
+    #     finally:
+    #         # dump a message in case of error and re-try connecting
+    #         if msg:
+    #             if self.status != msg:
+    #                 self.logger.error(msg)
+    #                 self.status = msg
+    #                 self.state = State.UNKNOWN
+    #             self.connect_task = background(self._connect())
+    #             return False
+    #
+    #     self.status = "Connected"
+    #
+    #     return True
+    #
+    # async def onInitialization(self):
+    #     self.initialized = True
+    #     self.connect_task = None
+    #     await self.connect()
+    #
+    # async def onDestruction(self):
+    #     """Actions to take when the device is shutdown."""
+    #     if self.connect_task:  # connecting
+    #         self.connect_task.cancel()
+    #     if self.state != State.UNKNOWN:
+    #         await self.close_connection()
+    #     await super().onDestruction()
