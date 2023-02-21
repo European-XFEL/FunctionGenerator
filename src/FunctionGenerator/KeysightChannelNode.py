@@ -51,10 +51,10 @@ class KeysightChannelNode(ChannelNodeBase):
         if not self.pulsePeriod:
             self.pulseWidth = value
             return
-        elif value > self.pulsePeriod:
+        elif value > self.pulsePeriod.value:
             self.status = f"Invalid value for pulseWidth: {value}." \
                           "Has to be smaller than the " \
-                          f"period {self.pulsePeriod}"
+                          f"period {self.pulsePeriod.value}"
             # TODO: code gets here but status is not shown in GUI, try this:
             sleep(1)
         else:

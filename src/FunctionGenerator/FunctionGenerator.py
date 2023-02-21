@@ -208,7 +208,8 @@ class FunctionGenerator(ScpiDevice):
 
     # this device does not return anything after commands
     async def readCommandResult(self, descriptor, value):
-        return value
+        # for commandReadBack to work we need to return None
+        return None
 
     # create the nodes in the specific implementation inheriting from
     # ChannelNodeBase
