@@ -4,7 +4,6 @@
 # Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
 #############################################################################
 
-from asyncio import sleep
 from karabo.middlelayer import (
     Double, Node, String, Unit
 )
@@ -57,11 +56,9 @@ class AFGChannelNode(ChannelNodeBase):
             self.pulseWidth = value
             return
         elif value > self.pulsePeriod:
-            self.status = f"Invalid value for pulseWidth: {value}. " \
-                          f"Has to be smaller than the " \
-                          f"period {self.pulsePeriod}"
-            # TODO: code gets here but status is not shown in GUI, try this:
-            sleep(1)
+            raise ValueError(f"Invalid value for pulseWidth: {value}. "
+                             f"Has to be smaller than the "
+                             f"period {self.pulsePeriod.value}")
         else:
             self.pulseWidth = value
 

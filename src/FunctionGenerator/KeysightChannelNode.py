@@ -1,4 +1,3 @@
-from asyncio import sleep
 from karabo.middlelayer import (
     Double, String, Unit
 )
@@ -15,23 +14,34 @@ class KeysightChannelNode(ChannelNodeBase):
     outputLoad.readOnConnect = True
     outputLoad.commandReadBack = True
 
+    func_shape_dict = {'SIN': 'Sine',
+                       'SQU': 'Square',
+                       'RAMP': 'Ramp',
+                       'TRI': 'Triangle',
+                       'PULS': 'Pulse',
+                       'NOIS': 'Noise',
+                       'PRBS': 'PRBS',
+                       'ARB': 'Arbitrary',
+                       'DC': 'DC'}
+
     functionShape = String(
         displayedName='Function Shape',
         alias='SOURce{channel_no}:FUNCtion',
-        options={'SIN', 'SQU', 'RAMP', 'NRAM', 'TRI', 'PULS', 'NOIS',
-                 'PRBS', 'ARB', 'DC'},
+        options=list(func_shape_dict.values()),
         description="Selects the output function",
-        defaultValue='SIN')
+        defaultValue='Sine')
     functionShape.readOnConnect = True
     functionShape.commandReadBack = True
 
     def setter(self, value):
         value = str(value)
+        if value in self.func_shape_dict.keys():
+            value = self.func_shape_dict[value]
         try:
             self.functionShape = value
         except ValueError:
             self.status = f"Function shape return value {value} not one " \
-                          "of the valid options"
+                          f"of the valid options"
 
     functionShape.__set__ = setter
 
@@ -44,7 +54,6 @@ class KeysightChannelNode(ChannelNodeBase):
                     "falling edge.")
     pulseWidth.readOnConnect = True
     pulseWidth.commandReadBack = True
-    pulseWidth.commandFormat = "{alias} {value} s"
 
     def setter(self, value):
         #  check if value in allowed range for period set
@@ -52,11 +61,9 @@ class KeysightChannelNode(ChannelNodeBase):
             self.pulseWidth = value
             return
         elif value > self.pulsePeriod.value:
-            self.status = f"Invalid value for pulseWidth: {value}." \
-                          "Has to be smaller than the " \
-                          f"period {self.pulsePeriod.value}"
-            # TODO: code gets here but status is not shown in GUI, try this:
-            sleep(1)
+            raise ValueError(f"Invalid value for pulseWidth: {value}. "
+                             f"Has to be smaller than the "
+                             f"period {self.pulsePeriod.value}")
         else:
             self.pulseWidth = value
 
@@ -69,7 +76,6 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Period of pulse waveform.")
     pulsePeriod.readOnConnect = True
     pulsePeriod.commandReadBack = True
-    pulsePeriod.commandFormat = "{alias} {value} s"
 
     arbitraryForm = String(
         displayedName='Select Arbitrary Form',
@@ -88,7 +94,6 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Period of arbitrary waveform.")
     arbitraryPeriod.readOnConnect = True
     arbitraryPeriod.commandReadBack = True
-    arbitraryPeriod.commandFormat = "{alias} {value} s"
 
     rampSymmetry = Double(
         displayedName='Ramp Symmetry',
@@ -96,7 +101,6 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Symmetry of ramp waveform in percent.")
     rampSymmetry.readOnConnect = True
     rampSymmetry.commandReadBack = True
-    rampSymmetry.commandFormat = "{alias} {value} s"
 
     triggerSource = String(
         displayedName='Trigger Source',
@@ -117,4 +121,3 @@ class KeysightChannelNode(ChannelNodeBase):
         defaultValue=10)
     triggerTime.readOnConnect = True
     triggerTime.commandReadBack = True
-    triggerTime.commandFormat = "{alias} {value} s"

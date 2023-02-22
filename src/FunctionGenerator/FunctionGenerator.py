@@ -3,29 +3,27 @@
 # Created on April 04, 2022, 11:06 AM
 # Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
 #############################################################################
-from asyncio import TimeoutError, wait_for
 
 from karabo.middlelayer import (
-    AccessMode, Double, State, String, Unit,
-    Slot, background
+    AccessMode, Double, KaraboValue, State, String, Unit, Slot
 )
 
 from scpiml import ScpiAutoDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion
 
-CONNECTION_TIMEOUT = 10  # in seconds
-
 
 class ChannelNodeBase(ScpiConfigurable):
 
     @Slot(displayedName="On", allowedStates=[State.NORMAL])
     async def channelOn(self):
-        key = f"channel_{self.alias}.outputState"
         descr = getattr(self.__class__, "outputState")
-        # timeout on readback because scpi readCommandResult is used
-        # not the overwritten one from this device
-        await self.sendCommand(descr, "ON")
+        await descr.setter(self, "ON")
+
+    @Slot(displayedName="Off", allowedStates=[State.NORMAL])
+    async def channelOff(self):
+        descr = getattr(self.__class__, "outputState")
+        await descr.setter(self, "OFF")
 
     outputState = String(
         displayedName='Output State',
@@ -55,7 +53,7 @@ class ChannelNodeBase(ScpiConfigurable):
     outputPol = String(
         displayedName='Output Polarity',
         alias='OUTPut{channel_no}:POL',
-        options={'NORM', 'INV', "bull"},
+        options={'NORM', 'INV'},
         description="Inverts waveform relative to offset voltage.")
     outputPol.readOnConnect = True
     outputPol.commandReadBack = True
@@ -110,7 +108,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Frequency of arbitrary waveform for the channel.")
     frequency.readOnConnect = True
     frequency.commandReadBack = True
-    frequency.commandFormat = "{alias} {value} Hz"
 
     burstState = String(
         displayedName='Burst State',
@@ -171,7 +168,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Start frequency of sweep for the specified channel.")
     frequencyStart.readOnConnect = True
     frequencyStart.commandReadBack = True
-    frequencyStart.commandFormat = "{alias} {value} Hz"
 
     frequencyStop = Double(
         displayedName='Stop Frequency',
@@ -180,7 +176,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Stop frequency of sweep for the specified channel.")
     frequencyStop.readOnConnect = True
     frequencyStop.commandReadBack = True
-    frequencyStop.commandFormat = "{alias} {value} Hz"
 
     sweepTime = Double(
         displayedName='Sweep Time',
@@ -189,7 +184,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Sweep time for the sweep for the specified channel.")
     sweepTime.readOnConnect = True
     sweepTime.commandReadBack = True
-    sweepTime.commandFormat = "{alias} {value} s"
 
     sweepHoldTime = Double(
         displayedName='Sweep Hold Time',
@@ -198,7 +192,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Sweep hold time.")
     sweepHoldTime.readOnConnect = True
     sweepHoldTime.commandReadBack = True
-    sweepHoldTime.commandFormat = "{alias} {value} s"
 
     sweepReturnTime = Double(
         displayedName='Sweep Return Time',
@@ -208,31 +201,10 @@ class ChannelNodeBase(ScpiConfigurable):
                     "of time from stop frequency through start frequency.")
     sweepReturnTime.readOnConnect = True
     sweepReturnTime.commandReadBack = True
-    sweepReturnTime.commandFormat = "{alias} {value} s"
 
 
 class FunctionGenerator(ScpiAutoDevice):
     __version__ = deviceVersion
-
-    # this device does not return anything after commands
-    async def readCommandResult(self, descriptor, value):
-        print("MINE", descriptor.alias, value)
-        return None
-
-    # create the nodes in the specific implementation inheriting from
-    # ChannelNodeBase
-    # channel_1 = Node(ChannelNodeBase, displayedName='channel 1', alias="1")
-    # channel_2 = Node(ChannelNodeBase, displayedName='channel 2', alias="2")
-
-    # override methods to create queries and commands for parameters in nodes
-    def createNodeQuery(self, descr, child):
-        scpi_add = descr.alias.format(channel_no=child.alias)
-        return f"{scpi_add}?\n"
-
-    def createNodeCommand(self, descr, value, child):
-        scpi_add = descr.alias.format(channel_no=child.alias)
-        return (getattr(descr, "commandFormat", self.command_format)
-                .format(alias=scpi_add, device=self, value=value.value))
 
     # CHANNEL independent parameters
     identification = String(
@@ -242,60 +214,45 @@ class FunctionGenerator(ScpiAutoDevice):
         description="Identification information on the AFG.")
     identification.readOnConnect = True
 
-    # @Slot(
-    #     displayedName="Connect",
-    #     allowedStates=[State.UNKNOWN]
-    # )
-    # async def connect(self):
-    #     self.state = State.CHANGING
-    #     self.status = "Connecting..."
-    #     if self.connect_task:
-    #         self.connect_task.cancel()
-    #     self.connect_task = background(self._connect())
-    #
-    # async def _connect(self):
-    #     """Connects to the instrument.
-    #
-    #     In case of failures the state is set to UNKNOWN and the device tries
-    #     to reconnect.
-    #     """
-    #     msg = ""
-    #     try:
-    #         await wait_for(super().connect(), timeout=CONNECTION_TIMEOUT)
-    #     except TimeoutError as e:
-    #         if "Timeout while waiting for reply" not in str(e):
-    #             msg = (f"Error: No connection established within "
-    #                    f"timeout ({CONNECTION_TIMEOUT} s). Please, "
-    #                    f"fix the network problem and press 'connect'.")
-    #     except ConnectionRefusedError as e:
-    #         msg = (f"Error: ConnectionRefused. "
-    #                f"Exception: {e}. Please, fix the network or hardware "
-    #                f"problem and press 'connect'.")
-    #     except ValueError as e:
-    #         msg = (f"ValueError on connect. Exception: {e}.")
-    #     finally:
-    #         # dump a message in case of error and re-try connecting
-    #         if msg:
-    #             if self.status != msg:
-    #                 self.logger.error(msg)
-    #                 self.status = msg
-    #                 self.state = State.UNKNOWN
-    #             self.connect_task = background(self._connect())
-    #             return False
-    #
-    #     self.status = "Connected"
-    #
-    #     return True
-    #
-    # async def onInitialization(self):
-    #     self.initialized = True
-    #     self.connect_task = None
-    #     await self.connect()
-    #
-    # async def onDestruction(self):
-    #     """Actions to take when the device is shutdown."""
-    #     if self.connect_task:  # connecting
-    #         self.connect_task.cancel()
-    #     if self.state != State.UNKNOWN:
-    #         await self.close_connection()
-    #     await super().onDestruction()
+    @Slot(
+        displayedName="Reset",
+        allowedStates=[State.ERROR]
+    )
+    async def reset(self):
+        self.state = State.NORMAL
+
+    # create the nodes in the specific implementation inheriting from
+    # ChannelNodeBase
+    # channel_1 = Node(ChannelNodeBase, displayedName='channel 1', alias="1")
+    # channel_2 = Node(ChannelNodeBase, displayedName='channel 2', alias="2")
+
+    # this device does not return anything after commands
+    async def readCommandResult(self, descriptor, value, child):
+        if value:
+            child = self if child is None else child
+            descriptor.__set__(child, value)
+        return None
+
+    # override methods to create queries and commands for parameters in nodes
+    def createNodeQuery(self, descr, child):
+        scpi_add = descr.alias.format(channel_no=child.alias)
+        return f"{scpi_add}?\n"
+
+    def createNodeCommand(self, descr, value, child):
+        scpi_add = descr.alias.format(channel_no=child.alias)
+        value = value.value if isinstance(value, KaraboValue) else value
+        # special treatment for functionShape to map human readable options
+        # to scpi command/returns
+        func_shape_dict = {'Sine': 'SIN',
+                           'Square': 'SQU',
+                           'Ramp': 'RAMP',
+                           'Triangle': 'TRI',
+                           'Pulse': 'PULS',
+                           'Noise': 'NOIS',
+                           'PRBS': 'PRBS',
+                           'Arbitrary': 'ARB',
+                           'DC': 'DC'}
+        if value in func_shape_dict.keys():
+            value = func_shape_dict[value]
+        return (getattr(descr, "commandFormat", self.command_format)
+                .format(alias=scpi_add, device=self, value=value))
