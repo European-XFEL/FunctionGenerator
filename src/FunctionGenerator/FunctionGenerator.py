@@ -15,6 +15,11 @@ from ._version import version as deviceVersion
 
 class ChannelNodeBase(ScpiConfigurable):
 
+    # also needed as global value in the node as it will be the 'self' when
+    # scpiML uses the following attributes
+    commandReadBack = True
+    readOnConnect = True
+
     @Slot(displayedName="On", allowedStates=[State.NORMAL])
     async def channelOn(self):
         descr = getattr(self.__class__, "outputState")
@@ -30,8 +35,6 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='OUTPut{channel_no}',
         options={'ON', 'OFF'},
         description="Enable the output for the channel.")
-    outputState.readOnConnect = True
-    outputState.commandReadBack = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -55,26 +58,20 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='OUTPut{channel_no}:POL',
         options={'NORM', 'INV'},
         description="Inverts waveform relative to offset voltage.")
-    outputPol.readOnConnect = True
-    outputPol.commandReadBack = True
 
     offset = Double(
         displayedName='Offset',
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:OFFS',
         description="Offset level for the specified channel.")
-    offset.readOnConnect = True
-    offset.commandReadBack = True
-    offset.poll = 10
+    offset.poll = True
 
     amplitude = Double(
         displayedName='Amplitude',
         alias='SOURce{channel_no}:VOLT',
         description="Output amplitude for the specified channel. "
                     "Unit is set by amplitude unit value.")
-    amplitude.readOnConnect = True
-    amplitude.commandReadBack = True
-    amplitude.poll = 10
+    amplitude.poll = True
 
     amplitudeUnit = String(
         displayedName='Amplitude Unit',
@@ -82,32 +79,32 @@ class ChannelNodeBase(ScpiConfigurable):
         options={'VPP', 'VRMS', 'DBM'},
         description="Units of output amplitude for the specified channel.",
         defaultValue='VPP')
-    amplitudeUnit.readOnConnect = True
-    amplitudeUnit.commandReadBack = True
 
     voltageLow = Double(
         displayedName='Voltage Low',
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:LOW',
         description={"Waveform low voltage"})
-    voltageLow.readOnConnect = True
-    voltageLow.commandReadBack = True
+    voltageLow.poll = True
 
     voltageHigh = Double(
         displayedName='Voltage High',
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:HIGH',
         description="Waveform high voltage.")
-    voltageHigh.readOnConnect = True
-    voltageHigh.commandReadBack = True
+    voltageHigh.poll = True
 
     frequency = Double(
         displayedName='Frequency',
         unitSymbol=Unit.HERTZ,
-        alias='SOURce{channel_no}:FUNCtion:ARBitrary:FREQ',
+        alias='SOURce{channel_no}:FREQ',
         description="Frequency of arbitrary waveform for the channel.")
-    frequency.readOnConnect = True
-    frequency.commandReadBack = True
+    frequency.poll = True
+
+    phase = Double(
+        displayedName='Phase',
+        alias='SOURce{channel_no}:PHASe',
+        description="Phase offset angle of waveform for the channel.")
 
     burstState = String(
         displayedName='Burst State',
@@ -116,8 +113,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Enables or disables the burst mode for the "
                     "specified channel.",
         defaultValue='OFF')
-    burstState.readOnConnect = True
-    burstState.commandReadBack = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -143,8 +138,6 @@ class ChannelNodeBase(ScpiConfigurable):
                     "burst mode. "
                     "GAT: Means gated mode is selected for burst mode.",
         defaultValue='TRIG')
-    burstMode.readOnConnect = True
-    burstMode.commandReadBack = True
 
     burstCycles = String(
         displayedName='Burst Cycles',
@@ -152,8 +145,6 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Number of cycles (burst count) to be output in burst "
                     "mode for the specified channel.",
         defaultValue='INF')
-    burstCycles.readOnConnect = True
-    burstCycles.commandReadBack = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -166,32 +157,24 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STAR',
         description="Start frequency of sweep for the specified channel.")
-    frequencyStart.readOnConnect = True
-    frequencyStart.commandReadBack = True
 
     frequencyStop = Double(
         displayedName='Stop Frequency',
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STOP',
         description="Stop frequency of sweep for the specified channel.")
-    frequencyStop.readOnConnect = True
-    frequencyStop.commandReadBack = True
 
     sweepTime = Double(
         displayedName='Sweep Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:TIME',
         description="Sweep time for the sweep for the specified channel.")
-    sweepTime.readOnConnect = True
-    sweepTime.commandReadBack = True
 
     sweepHoldTime = Double(
         displayedName='Sweep Hold Time',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:HTIM',
         description="Sweep hold time.")
-    sweepHoldTime.readOnConnect = True
-    sweepHoldTime.commandReadBack = True
 
     sweepReturnTime = Double(
         displayedName='Sweep Return Time',
@@ -199,20 +182,39 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:SWE:RTIM',
         description="Sweep return time. Return time represents the amount "
                     "of time from stop frequency through start frequency.")
-    sweepReturnTime.readOnConnect = True
-    sweepReturnTime.commandReadBack = True
 
 
 class FunctionGenerator(ScpiAutoDevice):
     __version__ = deviceVersion
+
+    # no reply on commands, so we query on all attributes after set
+    commandReadBack = True
+    readOnConnect = True
 
     # CHANNEL independent parameters
     identification = String(
         displayedName='Identification',
         accessMode=AccessMode.READONLY,
         alias='*IDN',
-        description="Identification information on the AFG.")
-    identification.readOnConnect = True
+        description="Identification information.")
+
+    systemError = String(
+        displayedName='System error',
+        accessMode=AccessMode.READONLY,
+        alias='SYSTem:ERRor',
+        description="System Error raised on hardware.")
+    systemError.poll = True
+
+    # overwriting from scpiMDL to extend maxInc
+    # TODO: check if there is a better way to just overwrite the maxInc
+    pollingInterval = Double(
+        displayedName="Polling Interval",
+        description="The minimum polling interval to be used for parameters "
+                    "that do not have an hard-coded one.",
+        defaultValue=1.,
+        unitSymbol=Unit.SECOND,
+        minInc=0.05,
+        maxInc=1000.)
 
     @Slot(
         displayedName="Reset",
@@ -227,11 +229,11 @@ class FunctionGenerator(ScpiAutoDevice):
     # channel_2 = Node(ChannelNodeBase, displayedName='channel 2', alias="2")
 
     # this device does not return anything after commands
-    async def readCommandResult(self, descriptor, value, child):
-        if value:
-            child = self if child is None else child
-            descriptor.__set__(child, value)
-        return None
+    async def readCommandResult(self, descriptor, value):
+        if descriptor.key == "arbs":
+            return (await self.get_root().readQueryResult(descriptor))
+        else:
+            return None
 
     # override methods to create queries and commands for parameters in nodes
     def createNodeQuery(self, descr, child):
