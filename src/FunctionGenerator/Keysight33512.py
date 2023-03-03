@@ -32,7 +32,7 @@ class Keysight33512(FunctionGenerator):
     arbs = String(
         displayedName='Request Arbs',
         alias='MMEMory:CAT:DATA:ARB',
-        defaultValue='"INT:{chr(92)}BUILTIN"',
+        defaultValue=f'"INT:{chr(92)}BUILTIN"',
         description="Request available arbitrary waveforms.",
         requiredAccessLevel=AccessLevel.EXPERT)
     arbs.commandFormat = "{alias}? {value}\n"
@@ -52,7 +52,7 @@ class Keysight33512(FunctionGenerator):
     async def getArbs(self):
         descr = getattr(self.__class__, "arbs")
         # {chr(92)} represents backlash so flake8 does not complain
-        await descr.setter(self, '"INT:{chr(92)}BUILTIN"')
+        await descr.setter(self, f'"INT:{chr(92)}BUILTIN"')
         if self.arb_options:
             setattr(self.__class__, 'availableArbs',
                     Overwrite(options=self.arb_options,
