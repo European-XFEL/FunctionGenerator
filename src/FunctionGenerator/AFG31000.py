@@ -46,20 +46,6 @@ class AFGChannelNode(ChannelNodeBase):
                     "duty cycle.")
     pulseWidth.commandFormat = "{alias} {value} s"
 
-    def setter(self, value):
-        #  check if value in allowed range for period set
-        if not self.pulsePeriod:
-            self.pulseWidth = value
-            return
-        elif value > self.pulsePeriod:
-            raise ValueError(f"Invalid value for pulseWidth: {value}. "
-                             f"Has to be smaller than the "
-                             f"period {self.pulsePeriod.value}")
-        else:
-            self.pulseWidth = value
-
-    pulseWidth.__set__ = setter
-
     pulsePeriod = Double(
         displayedName='Pulse Period',
         unitSymbol=Unit.SECOND,
