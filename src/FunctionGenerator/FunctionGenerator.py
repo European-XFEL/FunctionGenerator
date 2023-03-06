@@ -105,6 +105,7 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Phase',
         alias='SOURce{channel_no}:PHASe',
         description="Phase offset angle of waveform for the channel.")
+    phase.poll = True
 
     burstState = String(
         displayedName='Burst State',
@@ -113,6 +114,7 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Enables or disables the burst mode for the "
                     "specified channel.",
         defaultValue='OFF')
+    burstState.poll = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
@@ -221,7 +223,10 @@ class FunctionGenerator(ScpiAutoDevice):
         allowedStates=[State.ERROR]
     )
     async def reset(self):
-        self.state = State.NORMAL
+        if self.connected:
+            self.state = State.NORMAL
+        else:
+            self.state = State.UNKNOWN
 
     # create the nodes in the specific implementation inheriting from
     # ChannelNodeBase

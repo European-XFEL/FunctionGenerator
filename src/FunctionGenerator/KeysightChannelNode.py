@@ -62,17 +62,20 @@ class KeysightChannelNode(ChannelNodeBase):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:FUNC:PULS:TRAN:LEAD',
         description="Pulse leading edge time.")
+    pulseLeadingEdge.poll = True
 
     pulseTrailingEdge = Double(
         displayedName='Pulse Trailing Edge',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:FUNC:PULS:TRAN:TRA',
         description="Pulse trailing edge time.")
+    pulseTrailingEdge.poll = True
 
     burstPeriod = Double(
         displayedName='Burst Period',
         alias='SOURce{channel_no}:BURSt:INTernal:PERiod',
         description="Burst period for internally-triggered bursts.")
+    burstPeriod.poll = True
 
     sweepState = String(
         displayedName='Sweep State',
@@ -81,6 +84,7 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Enables or disables the sweep mode for the "
                     "specified channel.",
         defaultValue='OFF')
+    sweepState.poll = True
 
     def setter(self, value):
         # convert any answer to string in case of a number
