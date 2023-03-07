@@ -158,6 +158,11 @@ class KeysightChannelNode(ChannelNodeBase):
         displayedName='Last Loaded Arbitrary Form',
         accessMode=AccessMode.READONLY)
 
+    parent = None
+
+    def setup(self, parent):
+        self.parent = parent
+
     @Slot(displayedName="Select Arbitrary Waveform",
           allowedStates=[State.NORMAL])
     async def selectArb(self):
@@ -167,8 +172,7 @@ class KeysightChannelNode(ChannelNodeBase):
         await descr.setter(self, "Arbitrary")
         descr = getattr(self.__class__, "selectArbForm")
         arb = self.get_root().availableArbs.value
-        # {chr(92)} represents backlash so flake8 does not complain
-        await descr.setter(self, f'"INT:{chr(92)}BUILTIN{chr(92)}{arb}"')
+        await descr.setter(self, fr'"{self.parent.arbPath}\{arb}"')
         self.lastSelectArb = arb
 
     @Slot(displayedName="Load Arbitrary Waveform",
@@ -176,6 +180,5 @@ class KeysightChannelNode(ChannelNodeBase):
     async def loadArb(self):
         descr = getattr(self.__class__, "loadArbForm")
         arb = self.get_root().availableArbs.value
-        # {chr(92)} represents backlash so flake8 does not complain
-        await descr.setter(self, f'"INT:{chr(92)}BUILTIN{chr(92)}{arb}"')
+        await descr.setter(self, fr'"{self.parent.arbPath}\{arb}"')
         self.lastLoadedArb = arb

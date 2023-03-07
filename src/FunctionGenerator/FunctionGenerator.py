@@ -5,7 +5,7 @@
 #############################################################################
 
 from karabo.middlelayer import (
-    AccessMode, Double, KaraboValue, State, String, Unit, Slot
+    AccessMode, Double, KaraboValue, Overwrite, State, String, Unit, Slot
 )
 
 from scpiml import ScpiAutoDevice, ScpiConfigurable
@@ -207,16 +207,9 @@ class FunctionGenerator(ScpiAutoDevice):
         description="System Error raised on hardware.")
     systemError.poll = True
 
-    # overwriting from scpiMDL to extend maxInc
-    # TODO: check if there is a better way to just overwrite the maxInc
-    pollingInterval = Double(
-        displayedName="Polling Interval",
-        description="The minimum polling interval to be used for parameters "
-                    "that do not have an hard-coded one.",
-        defaultValue=1.,
-        unitSymbol=Unit.SECOND,
-        minInc=0.05,
-        maxInc=1000.)
+    # set a larger value to allow manual interaction with hardware while
+    # karabo device is connected
+    pollingInterval = Overwrite(defaultValue=10, maxInc=600)
 
     @Slot(
         displayedName="Reset",
