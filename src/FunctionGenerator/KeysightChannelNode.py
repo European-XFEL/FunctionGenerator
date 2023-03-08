@@ -1,5 +1,5 @@
 from karabo.middlelayer import (
-    AccessLevel, AccessMode, Double, Slot, State, String, Unit
+    AccessLevel, AccessMode, Double, Slot, State, String, Unit, VectorString
 )
 
 from .FunctionGenerator import ChannelNodeBase
@@ -108,6 +108,11 @@ class KeysightChannelNode(ChannelNodeBase):
         alias='SOURce{channel_no}:FUNC:ARB:PER',
         description="Period of arbitrary waveform.")
 
+    arbitraryRate = Double(
+        displayedName='Arbitrary Sample Rate',
+        alias='SOURce{channel_no}:FUNC:ARB:SRAT',
+        description="Sample rate of arbitrary waveform.")
+
     rampSymmetry = Double(
         displayedName='Ramp Symmetry',
         alias='SOURce{channel_no}:FUNC:RAMP:SYMM',
@@ -148,7 +153,26 @@ class KeysightChannelNode(ChannelNodeBase):
     loadArbForm.readOnConnect = False
     loadArbForm.commandReadBack = False
 
+    catalog = String(
+        displayedName='Get Catalog',
+        alias='SOURce{channel_no}:DATA:VOL:CAT',
+        description="Request catalog info.",
+        requiredAccessLevel=AccessLevel.EXPERT,
+        accessMode=AccessMode.READONLY)
+    catalog.commandReadBack = False
+    catalog.commandFormat = '{alias}?\n'
+    catalog.readOnConnect = True
+
+    def setter(self, value):
+        self.loadedArbs = [a.strip('"') for a in value.split(",")]
+
+    catalog.__set__ = setter
+
     # now the interface to the user for the above parameters
+
+    loadedArbs = VectorString(
+        displayedName='Loaded Arbitrary Forms',
+        accessMode=AccessMode.READONLY)
 
     lastSelectArb = String(
         displayedName='Last Selected Arbitrary Form',
@@ -182,3 +206,6 @@ class KeysightChannelNode(ChannelNodeBase):
         arb = self.get_root().availableArbs.value
         await descr.setter(self, fr'"{self.parent.arbPath}\{arb}"')
         self.lastLoadedArb = arb
+        # update loaded list
+        descr = getattr(self.__class__, "catalog")
+        await descr.setter(self, "")

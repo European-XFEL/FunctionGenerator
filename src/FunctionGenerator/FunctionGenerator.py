@@ -207,9 +207,17 @@ class FunctionGenerator(ScpiAutoDevice):
         description="System Error raised on hardware.")
     systemError.poll = True
 
+    def setter(self, value):
+        if "No error" in value:
+            pass
+        else:
+            self.systemError = value
+
+    systemError.__set__ = setter
+
     # set a larger value to allow manual interaction with hardware while
     # karabo device is connected
-    pollingInterval = Overwrite(defaultValue=10, maxInc=600)
+    pollingInterval = Overwrite(defaultValue=5, maxInc=600)
 
     @Slot(
         displayedName="Reset",
@@ -228,7 +236,7 @@ class FunctionGenerator(ScpiAutoDevice):
 
     # this device does not return anything after commands
     async def readCommandResult(self, descriptor, value):
-        if descriptor.key == "arbs":
+        if descriptor.key == "arbs" or descriptor.key == "catalog":
             return (await self.get_root().readQueryResult(descriptor))
         else:
             return None
