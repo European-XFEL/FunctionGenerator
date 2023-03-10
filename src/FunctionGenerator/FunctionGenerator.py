@@ -52,7 +52,7 @@ class ChannelNodeBase(ScpiConfigurable):
     def output_state_setter(self, value):
         self.on_off_setter(value, "outputState")
 
-    outputState.__set__ = output_state_setter()
+    outputState.__set__ = output_state_setter
 
     outputPol = String(
         displayedName='Output Polarity',
