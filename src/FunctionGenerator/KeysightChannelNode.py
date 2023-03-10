@@ -1,6 +1,6 @@
 from karabo.middlelayer import (
     AccessLevel, AccessMode, Assignment, Double, Slot, State, String,
-    Unit, VectorString
+    Unit
 )
 
 from .FunctionGenerator import ChannelNodeBase
@@ -189,8 +189,8 @@ class KeysightChannelNode(ChannelNodeBase):
     # TODO: filling of options
     # selectArbForm = String(
     #     displayedName='Available Waveforms',
-    #     description="Choose an available arbitrary waveform to be loaded into"
-    #                 "memory. "
+    #     description="Choose an available arbitrary waveform to be loaded "
+    #                 "into memory. "
     #                 "Note: If you choose a sequence file, all waveforms "
     #                 "referenced in there have to be loaded first. The "
     #                 "folder structure has to be maintained.",

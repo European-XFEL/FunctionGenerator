@@ -25,7 +25,7 @@ class ChannelNodeBase(ScpiConfigurable):
         # convert any answer to string in case of a number
         try:
             if value == 0 or value == '0' or value == "OFF":
-                setattr(key,'OFF')
+                setattr(key, 'OFF')
             else:
                 setattr(key, 'ON')
         except ValueError:
