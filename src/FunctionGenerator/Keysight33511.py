@@ -16,6 +16,6 @@ class Keysight33511(KeysightBase):
                      displayedName='channel 1',
                      alias="1")
 
-    async def onInitialisation(self):
+    async def onInitialization(self):
         # get the parent base class into the channel node
         self.channel_1.setup(self.parent)

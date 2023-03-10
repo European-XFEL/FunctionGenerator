@@ -5,7 +5,7 @@
 #############################################################################
 
 from karabo.middlelayer import (
-    Double, Node, String, Unit
+    Assignment, Double, Node, String, Unit
 )
 
 from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
@@ -13,28 +13,43 @@ from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
 
 class AFGChannelNode(ChannelNodeBase):
 
+    func_shape_dict = {'SIN': 'Sine',
+                       'SQU': 'Square',
+                       'RAMP': 'Ramp',
+                       'PULS': 'Pulse',
+                       'PRN': 'PR Noise',
+                       'SINC': 'Sin(x)/x',
+                       'GAUS': 'Gaussian',
+                       'DC': 'DC',
+                       'LOR': 'Lorentz',
+                       'ERIS': 'Exponential Rise',
+                       'EDEC': 'Exponential Decay',
+                       'HAV': 'Haversine'}
+
     functionShape = String(
         displayedName='Function Shape',
         alias='SOURce{channel_no}:FUNCtion',
-        options={'SIN', 'SQU', 'PULS', 'RAMP', 'PRN', 'DC', 'SINC', 'GAUS',
-                 'LOR', 'ERIS', 'EDEC', 'EMEM'},
+        options=list(func_shape_dict.values()),
         description="Shape of the output waveform. When the specified user "
                     "memory is deleted, this command causes an error if you "
                     "select the user memory. "
                     "If you select a waveform shape that is not allowed with "
                     "a particular modulation, sweep, or burst, Run mode "
                     "automatically changes to Continuous.",
-        defaultValue='PULS')
+        defaultValue='Pulse',
+        assignment=Assignment.INTERNAL)
 
-    def setter(self, value):
+    def func_setter(self, value):
         value = str(value)
+        if value in self.func_shape_dict.keys():
+            value = self.func_shape_dict[value]
         try:
             self.functionShape = value
         except ValueError:
             self.status = f"Function shape return value {value} not one " \
-                          "of the valid options"
+                          f"of the valid options"
 
-    functionShape.__set__ = setter
+    functionShape.__set__ = func_setter
 
     pulseWidth = Double(
         displayedName='Pulse Width',
@@ -43,15 +58,19 @@ class AFGChannelNode(ChannelNodeBase):
         description="Pulse Width = Period * Duty Cycle / 100. "
                     "The pulse width must be less than the period. "
                     "The setting range is 0.001% to 99.999% in terms of "
-                    "duty cycle.")
+                    "duty cycle.",
+        assignment=Assignment.INTERNAL)
     pulseWidth.commandFormat = "{alias} {value} s"
+    pulseWidth.poll = True
 
     pulsePeriod = Double(
         displayedName='Pulse Period',
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:PULS:PER',
-        description="Period of pulse waveform.")
+        description="Period of pulse waveform.",
+        assignment=Assignment.INTERNAL)
     pulsePeriod.commandFormat = "{alias} {value} s"
+    pulsePeriod.poll = True
 
     burstIdle = String(
         displayedName='Burst Idle',
@@ -64,7 +83,8 @@ class AFGChannelNode(ChannelNodeBase):
                     'waveform.',
         alias='SOURce{channel_no}:BURSt:IDLE',
         options={'START', 'DC', 'END', 'OFF'},
-        defaultValue='OFF')
+        defaultValue='OFF',
+        assignment=Assignment.INTERNAL)
 
     burstDelay = String(
         displayedName='Burst Delay',
@@ -76,7 +96,8 @@ class AFGChannelNode(ChannelNodeBase):
                      "The setting range is 0.0 ns to 85.000 s with "
                      "resolution of 100 ps or 5 digits. "
                      "Choose a number in range or MIN or MAX."},
-        defaultValue='MIN')
+        defaultValue='MIN',
+        assignment=Assignment.INTERNAL)
     burstDelay.commandFormat = "{alias} {value} s"
 
     sweepMode = String(
@@ -88,7 +109,8 @@ class AFGChannelNode(ChannelNodeBase):
                     "Sweep Time, Hold Time, and Return Time. "
                     "MAN: Sets the sweep mode to manual; the instrument "
                     "outputs one sweep when a trigger input is received.",
-        defaultValue='AUTO')
+        defaultValue='AUTO',
+        assignment=Assignment.INTERNAL)
 
 
 class AFG31000(FunctionGenerator):
@@ -111,7 +133,8 @@ class AFG31000(FunctionGenerator):
                     "Inf-Cycles starts. When Run Mode is specified other "
                     "than Burst Inf-Cycles, TRIGger, and SYNC have the "
                     "same effect.",
-        defaultValue='TRIG')
+        defaultValue='TRIG',
+        assignment=Assignment.INTERNAL)
 
     triggerSource = String(
         displayedName='Trigger Source',
@@ -119,7 +142,8 @@ class AFG31000(FunctionGenerator):
         options={'TIM', 'EXT'},
         description="TIM: Specifies an internal clock as the trigger "
                     "source. EXT: use external trigger source.",
-        defaultValue='TIM')
+        defaultValue='TIM',
+        assignment=Assignment.INTERNAL)
 
     triggerTime = Double(
         displayedName='Trigger Time',
@@ -129,7 +153,8 @@ class AFG31000(FunctionGenerator):
                     "internal clock as the trigger source.",
         defaultValue=10,
         minInc=1e-6,
-        maxInc=500.0)
+        maxInc=500.0,
+        assignment=Assignment.INTERNAL)
     triggerTime.commandFormat = "{alias} {value} s"
 
     runMode = String(
@@ -140,4 +165,25 @@ class AFG31000(FunctionGenerator):
                     "TRIG: Sets Run Mode to Triggered. "
                     "GAT: Sets Run Mode to Gated. "
                     "SEQ: Sets Run Mode to Sequence.",
-        defaultValue='CONT')
+        defaultValue='CONT',
+        assignment=Assignment.INTERNAL)
+    runMode.poll = True
+
+    lock = String(
+        displayedName='Lock',
+        alias='SYST:KLOCk',
+        options={'ON', 'OFF'},
+        defaultValue='ON',
+        description="Lock hardware from local use while remote operation "
+                    "in progress. ON on start of device.")
+    lock.readOnConnect = False
+    lock.writeOnConnect = True
+    lock.commandReadBack = True
+
+    def lock(self, value):
+        if value == 0 or value == '0' or value == "OFF":
+            self.lock = "OFF"
+        else:
+            self.lock = "ON"
+
+    lock.__set__ = lock
