@@ -22,15 +22,23 @@ class ChannelNodeBase(ScpiConfigurable):
     readOnConnect = True
 
     def on_off_setter(self, value, key):
-        # convert any answer to string in case of a number
+        if value not in ('ON', 'OFF'):
+            try:
+                value = int(value)
+                if value == 0:
+                    value = 'OFF'
+                elif value == 1:
+                    value = 'ON'
+            except ValueError:
+                pass
+
         try:
-            if value == 0 or value == '0' or value == "OFF":
-                setattr(self, key, 'OFF')
-            else:
-                setattr(self, key, 'ON')
-        except ValueError:
-            self.status = f"{key} return value {value} not one " \
-                          "of the valid options"
+            setattr(self, key, value)
+        except ValueError as e:
+            msg = f"{key} return value {value} is not one " \
+                  "of the valid options"
+            self.status = msg
+            raise e
 
     @Slot(displayedName="On", allowedStates=[State.NORMAL])
     async def channelOn(self):
