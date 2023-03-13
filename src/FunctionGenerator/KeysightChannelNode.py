@@ -39,7 +39,7 @@ class KeysightChannelNode(ChannelNodeBase):
         try:
             self.functionShape = value
         except ValueError:
-            self.status = f"Function shape return value {value} not one " \
+            self.parent.status = f"Function shape return value {value} not one " \
                           f"of the valid options"
 
     functionShape.__set__ = func_setter
@@ -149,6 +149,15 @@ class KeysightChannelNode(ChannelNodeBase):
     selectArbForm.readOnConnect = False
     selectArbForm.commandReadBack = False
 
+    currentArbForm = String(
+        displayedName='Current Waveform',
+        alias='SOURce{channel_no}:FUNC:ARB',
+        description="The currently selected arbitary waveform.",
+        accessMode=AccessMode.READONLY)
+    currentArbForm.commandFormat = '{alias}?\n'
+    currentArbForm.commandReadBack = False
+    currentArbForm.readOnConnect = True
+
     loadArbForm = String(
         displayedName='Load Arbitrary Form',
         alias='MMEMory:LOAD:DATA{channel_no}',
@@ -171,6 +180,7 @@ class KeysightChannelNode(ChannelNodeBase):
     def cat_setter(self, value):
         self.loadedArbs = [a.strip('"') for a in value.split(",")]
         # TODO: built a proper option lists to be used in select arb
+        # for now display in status see getLoadedArbs
 
     catalog.__set__ = cat_setter
 
@@ -184,24 +194,15 @@ class KeysightChannelNode(ChannelNodeBase):
     clearMem.readOnConnect = False
     clearMem.commandReadBack = False
 
-    # now the interface to the user for the above parameters
-
-    # TODO: filling of options
-    # selectArbForm = String(
-    #     displayedName='Available Waveforms',
-    #     description="Choose an available arbitrary waveform to be loaded "
-    #                 "into memory. "
-    #                 "Note: If you choose a sequence file, all waveforms "
-    #                 "referenced in there have to be loaded first. The "
-    #                 "folder structure has to be maintained.",
-    #     options="")
-
+    # the device holding the node
     parent = None
 
     def setup(self, parent):
         self.parent = parent
 
-    @Slot(displayedName="Select Arbitrary Waveform",
+    # now the interface to the user for the above parameters
+
+    @Slot(displayedName="Select Waveform",
           allowedStates=[State.NORMAL])
     async def selectArb(self):
         # make sure function shape is set to ARB otherwise hardware
@@ -211,19 +212,42 @@ class KeysightChannelNode(ChannelNodeBase):
         descr = getattr(self.__class__, "selectArbForm")
         arb = self.get_root().availableArbs.value
         await descr.setter(self, fr'"{self.parent.arbPath}\{arb.upper()}"')
+        await self.getCurrentArb()
 
-    @Slot(displayedName="Load Arbitrary Waveform",
+    @Slot(displayedName="Load Waveform",
           allowedStates=[State.NORMAL])
     async def loadArb(self):
-        descr = getattr(self.__class__, "loadArbForm")
         arb = self.get_root().availableArbs.value
-        await descr.setter(self, fr'"{self.parent.arbPath}\{arb}"')
-        # update loaded list
-        await self.get_loaded_arbs()
+        await self.load_one_arb(fr'"{self.parent.arbPath}\{arb}"')
 
-    async def get_loaded_arbs(self):
+    @Slot(displayedName="Load All Waveforms",
+          allowedStates=[State.NORMAL])
+    async def loadAllArb(self):
+        arbs = getattr(self.get_root().__class__, "availableArbs")
+        for wv in arbs.options:
+            name = fr'"{self.parent.arbPath}\{wv}"'
+            await self.load_one_arb(name)
+
+    async def load_one_arb(self, name):
+        descr = getattr(self.__class__, "loadArbForm")
+        await descr.setter(self, name)
+
+    @Slot(displayedName="Show Loaded Waveforms",
+          allowedStates=[State.NORMAL])
+    async def getLoadedArbs(self):
         descr = getattr(self.__class__, "catalog")
         await descr.setter(self, "")
+        msg = f"Loaded Waveforms on channel {self.alias}: \n"
+        for wv in self.loadedArbs:
+            msg += wv + "\n"
+        self.parent.status = msg
+
+    @Slot(displayedName="Show Current Waveforms",
+          allowedStates=[State.NORMAL])
+    async def getCurrentArb(self):
+        descr = getattr(self.__class__, "currentArbForm")
+        await descr.setter(self, "")
+        self.parent.status = f"Current waveform: {self.currentArbForm}"
 
     @Slot(displayedName="Clear Memory",
           allowedStates=[State.NORMAL])

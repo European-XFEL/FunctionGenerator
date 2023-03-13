@@ -25,9 +25,9 @@ class ChannelNodeBase(ScpiConfigurable):
         # convert any answer to string in case of a number
         try:
             if value == 0 or value == '0' or value == "OFF":
-                setattr(key, 'OFF')
+                setattr(self, key, 'OFF')
             else:
-                setattr(key, 'ON')
+                setattr(self, key, 'ON')
         except ValueError:
             self.status = f"{key} return value {value} not one " \
                           "of the valid options"
@@ -242,8 +242,9 @@ class FunctionGenerator(ScpiAutoDevice):
 
     # this device does not return anything after commands
     async def readCommandResult(self, descriptor, value):
-        if descriptor.key == "arbs" or descriptor.key == "catalog":
-            return (await self.get_root().readQueryResult(descriptor))
+        # exception for query commands that do return a response
+        if descriptor.key in ["arbs", "catalog", "currentArbForm"]:
+            return await self.get_root().readQueryResult(descriptor)
         else:
             return None
 
