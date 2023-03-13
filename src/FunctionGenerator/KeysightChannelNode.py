@@ -39,8 +39,8 @@ class KeysightChannelNode(ChannelNodeBase):
         try:
             self.functionShape = value
         except ValueError:
-            self.parent.status = f"Function shape return value {value} not one " \
-                          f"of the valid options"
+            self.parent.status = f"Function shape return value {value} " \
+                                 f"not one of the valid options"
 
     functionShape.__set__ = func_setter
 
