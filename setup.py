@@ -23,7 +23,9 @@ setup(name='FunctionGenerator',
       packages=find_packages('src'),
       entry_points={
           'karabo.middlelayer_device': [
-              'FunctionGenerator = FunctionGenerator.FunctionGenerator:FunctionGenerator'
+              'AFG31000 = FunctionGenerator.AFG31000:AFG31000',
+              'Keysight33512 = FunctionGenerator.Keysight33512:Keysight33512',
+              'Keysight33511 = FunctionGenerator.Keysight33511:Keysight33511'
           ],
       },
       package_data={},

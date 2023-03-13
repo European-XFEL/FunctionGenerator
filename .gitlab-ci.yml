@@ -12,10 +12,22 @@
     - curl http://exflserv05.desy.de/karabo/karaboFramework/tags/$KARABO_TAG/karabo-$KARABO_TAG-Release-$REL_OS_NAME-$REL_OS_VERS_LONG-x86_64.sh > karabo.sh
     - bash karabo.sh --prefix=/root
     - source /root/karabo/activate
-    - karabo -g https://$XFEL_TOKEN@git.xfel.eu/gitlab install $REL_PROJECT_NAME $REL_TAG
+    - karabo -g https://$XFEL_TOKEN@git.xfel.eu install $REL_PROJECT_NAME $REL_TAG
     - pushd $CI_PROJECT_DIR
     - pip install -e .
     - pytest .
+
+test:ubuntu20:
+  image: europeanxfel/karabo-ci:ubuntu-20
+  before_script:
+     - export KARABO_TAG="latest_build"
+  <<: *test_build
+
+test:ubuntu22:
+  image: europeanxfel/karabo-ci:ubuntu-22
+  before_script:
+     - export KARABO_TAG="latest_build"
+  <<: *test_build
 
 test:centos7:relese:
   image: europeanxfel/karabo-ci:centos-7gcc7
