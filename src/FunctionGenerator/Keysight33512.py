@@ -5,11 +5,12 @@
 #############################################################################
 
 from karabo.middlelayer import Node
-from .FunctionGenerator import FunctionGenerator
+
+from .KeysightBase import KeysightBase
 from .KeysightChannelNode import KeysightChannelNode
 
 
-class Keysight33512(FunctionGenerator):
+class Keysight33512(KeysightBase):
 
     channel_1 = Node(KeysightChannelNode,
                      displayedName='channel 1',
@@ -17,3 +18,8 @@ class Keysight33512(FunctionGenerator):
     channel_2 = Node(KeysightChannelNode,
                      displayedName='channel 2',
                      alias="2")
+
+    async def onInitialization(self):
+        # get the parent base class into the channel node
+        self.channel_1.setup(self.parent)
+        self.channel_2.setup(self.parent)
