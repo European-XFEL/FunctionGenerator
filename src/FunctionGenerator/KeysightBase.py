@@ -17,8 +17,9 @@ class KeysightBase(FunctionGenerator):
         displayedName='Phase Unit',
         alias='UNIT:ANGLe',
         options={'DEG', 'RAD'},
-        defaultValue="DEG",
         description="Unit of Phase offset angle of waveform.",
+        defaultValue="DEG",
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     arbPath = String(

@@ -12,6 +12,8 @@ class KeysightChannelNode(ChannelNodeBase):
         displayedName='Output Load',
         alias='OUTPut{channel_no}:LOAD',
         description="Sets expected output termination.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     func_shape_dict = {'SIN': 'Sine',
@@ -30,6 +32,7 @@ class KeysightChannelNode(ChannelNodeBase):
         options=list(func_shape_dict.values()),
         description="Selects the output function",
         defaultValue='Sine',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     def func_setter(self, value):
@@ -51,6 +54,8 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Pulse width is the time from the 50% threshold of a "
                     "pulse's rising edge to the 50% threshold of the next "
                     "falling edge.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     pulseWidth.poll = True
 
@@ -59,6 +64,8 @@ class KeysightChannelNode(ChannelNodeBase):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:FUNC:PULS:PER',
         description="Period of pulse waveform.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     pulsePeriod.poll = True
 
@@ -67,6 +74,8 @@ class KeysightChannelNode(ChannelNodeBase):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:FUNC:PULS:TRAN:LEAD',
         description="Pulse leading edge time.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     pulseLeadingEdge.poll = True
 
@@ -75,6 +84,8 @@ class KeysightChannelNode(ChannelNodeBase):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:FUNC:PULS:TRAN:TRA',
         description="Pulse trailing edge time.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     pulseTrailingEdge.poll = True
 
@@ -82,6 +93,8 @@ class KeysightChannelNode(ChannelNodeBase):
         displayedName='Burst Period',
         alias='SOURce{channel_no}:BURSt:INTernal:PERiod',
         description="Burst period for internally-triggered bursts.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     burstPeriod.poll = True
 
@@ -92,6 +105,7 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Enables or disables the sweep mode for the "
                     "specified channel.",
         defaultValue='OFF',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     sweepState.poll = True
 
@@ -105,18 +119,24 @@ class KeysightChannelNode(ChannelNodeBase):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:FUNC:ARB:PER',
         description="Period of arbitrary waveform.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     arbitraryRate = Double(
         displayedName='Arbitrary Sample Rate',
         alias='SOURce{channel_no}:FUNC:ARB:SRAT',
         description="Sample rate of arbitrary waveform.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     rampSymmetry = Double(
         displayedName='Ramp Symmetry',
         alias='SOURce{channel_no}:FUNC:RAMP:SYMM',
         description="Symmetry of ramp waveform in percent.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     triggerSource = String(
@@ -126,6 +146,7 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Selects the trigger source. Immediate or timed internal "
                     "trigger, external or software (BUS) trigger.",
         defaultValue='TIM',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     triggerTime = Double(
@@ -135,6 +156,7 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Period of an internal clock when you select the "
                     "internal clock as the trigger source.",
         defaultValue=10,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     # The following properties should not be used directly but are internally

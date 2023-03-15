@@ -55,6 +55,8 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='OUTPut{channel_no}',
         options={'ON', 'OFF'},
         description="Enable the output for the channel.",
+        defaultValue="OFF",
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     def output_state_setter(self, value):
@@ -66,6 +68,8 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Output Polarity',
         alias='OUTPut{channel_no}:POL',
         options={'NORM', 'INV'},
+        defaultValue='NORM',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         description="Inverts waveform relative to offset voltage.",
         assignment=Assignment.INTERNAL)
 
@@ -74,6 +78,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:OFFS',
         description="Offset level for the specified channel.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     offset.poll = True
 
@@ -82,6 +88,8 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:VOLT',
         description="Output amplitude for the specified channel. "
                     "Unit is set by amplitude unit value.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     amplitude.poll = True
 
@@ -91,6 +99,7 @@ class ChannelNodeBase(ScpiConfigurable):
         options={'VPP', 'VRMS', 'DBM'},
         description="Units of output amplitude for the specified channel.",
         defaultValue='VPP',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     voltageLow = Double(
@@ -98,6 +107,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:LOW',
         description={"Waveform low voltage"},
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     voltageLow.poll = True
 
@@ -106,6 +117,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.VOLT,
         alias='SOURce{channel_no}:VOLT:HIGH',
         description="Waveform high voltage.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     voltageHigh.poll = True
 
@@ -114,6 +127,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ',
         description="Frequency of arbitrary waveform for the channel.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     frequency.poll = True
 
@@ -121,6 +136,8 @@ class ChannelNodeBase(ScpiConfigurable):
         displayedName='Phase',
         alias='SOURce{channel_no}:PHASe',
         description="Phase offset angle of waveform for the channel.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     phase.poll = True
 
@@ -131,6 +148,7 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Enables or disables the burst mode for the "
                     "specified channel.",
         defaultValue='OFF',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     burstState.poll = True
 
@@ -147,6 +165,7 @@ class ChannelNodeBase(ScpiConfigurable):
                     "burst mode. "
                     "GAT: Means gated mode is selected for burst mode.",
         defaultValue='TRIG',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     burstCycles = String(
@@ -155,6 +174,7 @@ class ChannelNodeBase(ScpiConfigurable):
         description="Number of cycles (burst count) to be output in burst "
                     "mode for the specified channel.",
         defaultValue='INF',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     def burst_cycles_setter(self, value):
@@ -168,6 +188,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STAR',
         description="Start frequency of sweep for the specified channel.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     frequencyStop = Double(
@@ -175,6 +197,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.HERTZ,
         alias='SOURce{channel_no}:FREQ:STOP',
         description="Stop frequency of sweep for the specified channel.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     sweepTime = Double(
@@ -182,6 +206,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:TIME',
         description="Sweep time for the sweep for the specified channel.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     sweepHoldTime = Double(
@@ -189,6 +215,8 @@ class ChannelNodeBase(ScpiConfigurable):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:SWE:HTIM',
         description="Sweep hold time.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     sweepReturnTime = Double(
@@ -197,6 +225,8 @@ class ChannelNodeBase(ScpiConfigurable):
         alias='SOURce{channel_no}:SWE:RTIM',
         description="Sweep return time. Return time represents the amount "
                     "of time from stop frequency through start frequency.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
 
