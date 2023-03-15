@@ -37,6 +37,7 @@ class AFGChannelNode(ChannelNodeBase):
                     "a particular modulation, sweep, or burst, Run mode "
                     "automatically changes to Continuous.",
         defaultValue='Pulse',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     def func_setter(self, value):
@@ -59,6 +60,8 @@ class AFGChannelNode(ChannelNodeBase):
                     "The pulse width must be less than the period. "
                     "The setting range is 0.001% to 99.999% in terms of "
                     "duty cycle.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     pulseWidth.commandFormat = "{alias} {value} s"
     pulseWidth.poll = True
@@ -68,6 +71,8 @@ class AFGChannelNode(ChannelNodeBase):
         unitSymbol=Unit.SECOND,
         alias='SOURce{channel_no}:PULS:PER',
         description="Period of pulse waveform.",
+        defaultValue=0.,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     pulsePeriod.commandFormat = "{alias} {value} s"
     pulsePeriod.poll = True
@@ -84,6 +89,7 @@ class AFGChannelNode(ChannelNodeBase):
         alias='SOURce{channel_no}:BURSt:IDLE',
         options={'START', 'DC', 'END', 'OFF'},
         defaultValue='OFF',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     burstDelay = String(
@@ -97,6 +103,7 @@ class AFGChannelNode(ChannelNodeBase):
                      "resolution of 100 ps or 5 digits. "
                      "Choose a number in range or MIN or MAX."},
         defaultValue='MIN',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     burstDelay.commandFormat = "{alias} {value} s"
 
@@ -110,6 +117,7 @@ class AFGChannelNode(ChannelNodeBase):
                     "MAN: Sets the sweep mode to manual; the instrument "
                     "outputs one sweep when a trigger input is received.",
         defaultValue='AUTO',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
 
@@ -134,6 +142,7 @@ class AFG31000(FunctionGenerator):
                     "than Burst Inf-Cycles, TRIGger, and SYNC have the "
                     "same effect.",
         defaultValue='TRIG',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     triggerSource = String(
@@ -143,6 +152,7 @@ class AFG31000(FunctionGenerator):
         description="TIM: Specifies an internal clock as the trigger "
                     "source. EXT: use external trigger source.",
         defaultValue='TIM',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
     triggerTime = Double(
@@ -152,6 +162,7 @@ class AFG31000(FunctionGenerator):
         description="Period of an internal clock when you select the "
                     "internal clock as the trigger source.",
         defaultValue=10,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         minInc=1e-6,
         maxInc=500.0,
         assignment=Assignment.INTERNAL)
@@ -166,6 +177,7 @@ class AFG31000(FunctionGenerator):
                     "GAT: Sets Run Mode to Gated. "
                     "SEQ: Sets Run Mode to Sequence.",
         defaultValue='CONT',
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
     runMode.poll = True
 
