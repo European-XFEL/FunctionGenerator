@@ -181,21 +181,18 @@ class AFG31000(FunctionGenerator):
         assignment=Assignment.INTERNAL)
     runMode.poll = True
 
-    lock = String(
-        displayedName='Lock',
-        alias='SYST:KLOCk',
+    lockPanel = String(
+        displayedName='Lock Panel',
+        alias='SYSTem:KLOCk:STATe',
         options={'ON', 'OFF'},
         defaultValue='ON',
         description="Lock hardware from local use while remote operation "
                     "in progress. ON on start of device.")
-    lock.readOnConnect = False
-    lock.writeOnConnect = True
-    lock.commandReadBack = True
+    lockPanel.readOnConnect = False
+    lockPanel.writeOnConnect = True
+    lockPanel.commandReadBack = True
 
-    def lock(self, value):
-        if value == 0 or value == '0' or value == "OFF":
-            self.lock = "OFF"
-        else:
-            self.lock = "ON"
+    def lock_setter(self, value):
+        ChannelNodeBase.on_off_setter(self, value, "lockPanel")
 
-    lock.__set__ = lock
+    lockPanel.__set__ = lock_setter

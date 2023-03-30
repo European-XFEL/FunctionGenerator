@@ -75,7 +75,8 @@ class KeysightBase(FunctionGenerator):
         displayedName='Request Arbs',
         alias='MMEMory:CAT:DATA:ARB',
         defaultValue=r'INT:\BUILTIN',
-        description="Request available arbitrary waveforms.",
+        description="For internal use: "
+                    "Request available arbitrary waveforms.",
         requiredAccessLevel=AccessLevel.EXPERT,
         accessMode=AccessMode.READONLY)
     arbs.commandFormat = '{alias}? {value}\n'

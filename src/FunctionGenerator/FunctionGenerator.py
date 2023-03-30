@@ -6,10 +6,10 @@
 
 from karabo.middlelayer import (
     AccessMode, Assignment, Double, KaraboValue, Overwrite, State,
-    String, Unit, Slot
+    String, Unit, Slot, background
 )
 
-from scpiml import ScpiAutoDevice, ScpiConfigurable
+from scpiml import BaseScpiDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion
 
@@ -230,12 +230,20 @@ class ChannelNodeBase(ScpiConfigurable):
         assignment=Assignment.INTERNAL)
 
 
-class FunctionGenerator(ScpiAutoDevice):
+class FunctionGenerator(BaseScpiDevice):
     __version__ = deviceVersion
 
     # no reply on commands, so we query on all attributes after set
     commandReadBack = True
     readOnConnect = True
+
+    @Slot(displayedName="Connect",
+          allowedStates=[State.UNKNOWN])
+    async def connectAction(self):
+        background(self.connect())
+
+    async def connect(self):
+        await super().connect()
 
     # CHANNEL independent parameters
     identification = String(

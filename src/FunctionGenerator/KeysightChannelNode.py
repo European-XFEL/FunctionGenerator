@@ -8,11 +8,12 @@ from .FunctionGenerator import ChannelNodeBase
 
 class KeysightChannelNode(ChannelNodeBase):
 
-    outputLoad = Double(
+    outputLoad = String(
         displayedName='Output Load',
         alias='OUTPut{channel_no}:LOAD',
-        description="Sets expected output termination.",
-        defaultValue=0.,
+        description="Sets expected output termination. "
+                    "Value can be number or 'INF'.",
+        defaultValue="",
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
@@ -165,7 +166,8 @@ class KeysightChannelNode(ChannelNodeBase):
     selectArbForm = String(
         displayedName='Select Arbitrary Form',
         alias='SOURce{channel_no}:FUNC:ARB',
-        description="Select arbitrary waveform in memory.",
+        description="For internal use: "
+                    "Select arbitrary waveform in memory.",
         requiredAccessLevel=AccessLevel.EXPERT,
         accessMode=AccessMode.READONLY)
     selectArbForm.readOnConnect = False
@@ -183,7 +185,8 @@ class KeysightChannelNode(ChannelNodeBase):
     loadArbForm = String(
         displayedName='Load Arbitrary Form',
         alias='MMEMory:LOAD:DATA{channel_no}',
-        description="Load file with arbitrary waveform.",
+        description="For internal use: "
+                    "Load file with arbitrary waveform.",
         requiredAccessLevel=AccessLevel.EXPERT,
         accessMode=AccessMode.READONLY)
     loadArbForm.readOnConnect = False
@@ -192,7 +195,7 @@ class KeysightChannelNode(ChannelNodeBase):
     catalog = String(
         displayedName='Get Catalog',
         alias='SOURce{channel_no}:DATA:VOL:CAT',
-        description="Request catalog info.",
+        description="For internal use: Request catalog info.",
         requiredAccessLevel=AccessLevel.EXPERT,
         accessMode=AccessMode.READONLY)
     catalog.commandFormat = '{alias}?\n'
@@ -209,7 +212,8 @@ class KeysightChannelNode(ChannelNodeBase):
     clearMem = String(
         displayedName='Clear Memory',
         alias='SOURce{channel_no}:DATA:VOL:CLEar',
-        description="Clear all Loaded arbitrary waveform from memory.",
+        description="For internal use: "
+                    "Clear all Loaded arbitrary waveform from memory.",
         requiredAccessLevel=AccessLevel.EXPERT,
         accessMode=AccessMode.READONLY)
     clearMem.commandFormat = '{alias}\n'
