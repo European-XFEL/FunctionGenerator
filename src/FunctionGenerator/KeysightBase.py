@@ -16,7 +16,7 @@ class KeysightBase(FunctionGenerator):
     phaseUnit = String(
         displayedName='Phase Unit',
         alias='UNIT:ANGLe',
-        options={'DEG', 'RAD'},
+        options=['DEG', 'RAD'],
         description="Unit of Phase offset angle of waveform.",
         defaultValue="DEG",
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
@@ -54,7 +54,7 @@ class KeysightBase(FunctionGenerator):
     display = String(
         displayedName='Display',
         alias='DISPlay',
-        options={'ON', 'OFF'},
+        options=['ON', 'OFF'],
         defaultValue='OFF',
         description="Turn Display on or off. OFF on start of device. "
                     "Control on hardware side can be reclaimed by pressing "

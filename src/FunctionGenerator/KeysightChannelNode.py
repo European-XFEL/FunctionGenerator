@@ -102,7 +102,7 @@ class KeysightChannelNode(ChannelNodeBase):
     sweepState = String(
         displayedName='Sweep State',
         alias='SOURce{channel_no}:SWE:STAT',
-        options={'ON', 'OFF'},
+        options=['ON', 'OFF'],
         description="Enables or disables the sweep mode for the "
                     "specified channel.",
         defaultValue='OFF',
@@ -143,7 +143,7 @@ class KeysightChannelNode(ChannelNodeBase):
     triggerSource = String(
         displayedName='Trigger Source',
         alias='TRIG{channel_no}:SOUR',
-        options={'TIM', 'EXT', "BUS", "IMM"},
+        options=['TIM', 'EXT', "BUS", "IMM"],
         description="Selects the trigger source. Immediate or timed internal "
                     "trigger, external or software (BUS) trigger.",
         defaultValue='TIM',

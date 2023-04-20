@@ -53,7 +53,7 @@ class ChannelNodeBase(ScpiConfigurable):
     outputState = String(
         displayedName='Output State',
         alias='OUTPut{channel_no}',
-        options={'ON', 'OFF'},
+        options=['ON', 'OFF'],
         description="Enable the output for the channel.",
         defaultValue="OFF",
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
@@ -67,7 +67,7 @@ class ChannelNodeBase(ScpiConfigurable):
     outputPol = String(
         displayedName='Output Polarity',
         alias='OUTPut{channel_no}:POL',
-        options={'NORM', 'INV'},
+        options=['NORM', 'INV'],
         defaultValue='NORM',
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         description="Inverts waveform relative to offset voltage.",
@@ -96,7 +96,7 @@ class ChannelNodeBase(ScpiConfigurable):
     amplitudeUnit = String(
         displayedName='Amplitude Unit',
         alias='SOURce{channel_no}:VOLT:UNIT',
-        options={'VPP', 'VRMS', 'DBM'},
+        options=['VPP', 'VRMS', 'DBM'],
         description="Units of output amplitude for the specified channel.",
         defaultValue='VPP',
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
@@ -144,7 +144,7 @@ class ChannelNodeBase(ScpiConfigurable):
     burstState = String(
         displayedName='Burst State',
         alias='SOURce{channel_no}:BURSt:STAT',
-        options={'ON', 'OFF'},
+        options=['ON', 'OFF'],
         description="Enables or disables the burst mode for the "
                     "specified channel.",
         defaultValue='OFF',
@@ -160,7 +160,7 @@ class ChannelNodeBase(ScpiConfigurable):
     burstMode = String(
         displayedName='Burst Mode',
         alias='SOURce{channel_no}:BURSt:MODE',
-        options={'TRIG', 'GAT'},
+        options=['TRIG', 'GAT'],
         description="TRIG: Means that triggered mode is selected for "
                     "burst mode. "
                     "GAT: Means gated mode is selected for burst mode.",
