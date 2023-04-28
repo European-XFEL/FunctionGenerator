@@ -6,7 +6,7 @@
 
 from karabo.middlelayer import (
     AccessMode, Assignment, Double, KaraboValue, Overwrite, State,
-    String, Unit, Slot, background
+    String, Slot, Unit, background
 )
 
 from scpiml import BaseScpiDevice, ScpiConfigurable
