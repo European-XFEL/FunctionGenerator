@@ -87,7 +87,7 @@ class AFGChannelNode(ChannelNodeBase):
                     'END: The output keep same as the end point of burst '
                     'waveform.',
         alias='SOURce{channel_no}:BURSt:IDLE',
-        options={'START', 'DC', 'END', 'OFF'},
+        options=['START', 'DC', 'END', 'OFF'],
         defaultValue='OFF',
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
@@ -110,7 +110,7 @@ class AFGChannelNode(ChannelNodeBase):
     sweepMode = String(
         displayedName='Sweep Mode',
         alias='SOURce{channel_no}:SWE:MODE',
-        options={'AUTO', 'MAN'},
+        options=['AUTO', 'MAN'],
         description="AUTO: Sets the sweep mode to auto; the instrument "
                     "outputs a continuous sweep at a rate specified by "
                     "Sweep Time, Hold Time, and Return Time. "
@@ -130,7 +130,7 @@ class AFG31000(FunctionGenerator):
     triggerMode = String(
         displayedName='Trigger Mode',
         alias='OUTP:TRIG:MODE',
-        options={'TRIG', 'SYNC'},
+        options=['TRIG', 'SYNC'],
         description="The mode (trigger or sync) for Trigger Output signal. "
                     "When the burst count is set to Inf-Cycles in burst mode,"
                     "TRIGger indicates that the infinite number of cycles "
@@ -148,7 +148,7 @@ class AFG31000(FunctionGenerator):
     triggerSource = String(
         displayedName='Trigger Source',
         alias='TRIG:SOUR',
-        options={'TIM', 'EXT'},
+        options=['TIM', 'EXT'],
         description="TIM: Specifies an internal clock as the trigger "
                     "source. EXT: use external trigger source.",
         defaultValue='TIM',
@@ -171,7 +171,7 @@ class AFG31000(FunctionGenerator):
     runMode = String(
         displayedName='Run Mode',
         alias='SEQC:RMOD',
-        options={'CONT', 'TRIG', 'GAT', 'SEQ'},
+        options=['CONT', 'TRIG', 'GAT', 'SEQ'],
         description="CONT: Sets Run Mode to Continuous. "
                     "TRIG: Sets Run Mode to Triggered. "
                     "GAT: Sets Run Mode to Gated. "
@@ -184,7 +184,7 @@ class AFG31000(FunctionGenerator):
     lockPanel = String(
         displayedName='Lock Panel',
         alias='SYSTem:KLOCk:STATe',
-        options={'ON', 'OFF'},
+        options=['ON', 'OFF'],
         defaultValue='ON',
         description="Lock hardware from local use while remote operation "
                     "in progress. ON on start of device.")

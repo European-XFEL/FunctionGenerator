@@ -102,7 +102,7 @@ class KeysightChannelNode(ChannelNodeBase):
     sweepState = String(
         displayedName='Sweep State',
         alias='SOURce{channel_no}:SWE:STAT',
-        options={'ON', 'OFF'},
+        options=['ON', 'OFF'],
         description="Enables or disables the sweep mode for the "
                     "specified channel.",
         defaultValue='OFF',
@@ -143,7 +143,7 @@ class KeysightChannelNode(ChannelNodeBase):
     triggerSource = String(
         displayedName='Trigger Source',
         alias='TRIG{channel_no}:SOUR',
-        options={'TIM', 'EXT', "BUS", "IMM"},
+        options=['TIM', 'EXT', "BUS", "IMM"],
         description="Selects the trigger source. Immediate or timed internal "
                     "trigger, external or software (BUS) trigger.",
         defaultValue='TIM',
@@ -157,6 +157,16 @@ class KeysightChannelNode(ChannelNodeBase):
         description="Period of an internal clock when you select the "
                     "internal clock as the trigger source.",
         defaultValue=10,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
+        assignment=Assignment.INTERNAL)
+
+    triggerDelay = Double(
+        displayedName='Trigger Delay',
+        alias='TRIG{channel_no}:DEL',
+        unitSymbol=Unit.SECOND,
+        description="Sets trigger delay, (time from assertion of trigger to "
+                    "occurrence of triggered event).",
+        defaultValue=0,
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
