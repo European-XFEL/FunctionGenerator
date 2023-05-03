@@ -160,6 +160,16 @@ class KeysightChannelNode(ChannelNodeBase):
         # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
         assignment=Assignment.INTERNAL)
 
+    triggerDelay = Double(
+        displayedName='Trigger Delay',
+        alias='TRIG{channel_no}:DEL',
+        unitSymbol=Unit.SECOND,
+        description="Sets trigger delay, (time from assertion of trigger to "
+                    "occurrence of triggered event).",
+        defaultValue=0,
+        # TODO default not needed for Assignment.INTERNAL if Karabo >= 2.16.3
+        assignment=Assignment.INTERNAL)
+
     # The following properties should not be used directly but are internally
     # used in slots to trigger scpiML response
 
