@@ -1,14 +1,13 @@
 #############################################################################
 # Author: amunnich
 # Created on April 04, 2022, 11:06 AM
-# Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 #############################################################################
 from contextlib import contextmanager
 
-from karabo.middlelayer_api.tests.eventloop import async_tst, DeviceTest
+from karabo.middlelayer_api.tests.eventloop import DeviceTest, async_tst
 
 from ..FunctionGenerator import FunctionGenerator
-
 
 conf = {
     "classId": "FunctionGenerator",

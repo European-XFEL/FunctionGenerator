@@ -1,14 +1,12 @@
 #############################################################################
 # Author: amunnich
 # Created on April 04, 2022, 11:06 AM
-# Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 #############################################################################
 
-from karabo.middlelayer import (
-    Assignment, Double, Node, String, Unit
-)
+from karabo.middlelayer import Assignment, Double, Node, String, Unit
 
-from .FunctionGenerator import FunctionGenerator, ChannelNodeBase
+from .FunctionGenerator import ChannelNodeBase, FunctionGenerator
 
 
 class AFGChannelNode(ChannelNodeBase):

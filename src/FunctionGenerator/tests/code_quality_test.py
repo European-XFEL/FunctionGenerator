@@ -1,9 +1,13 @@
-import os.path as op
+#############################################################################
+# Author: amunnich
+# Created on April 04, 2022, 11:06 AM
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
+#############################################################################
 import os
+import os.path as op
 import subprocess
 
 import FunctionGenerator
-
 
 BLACKLIST = ['setup.py', '__init__.py']
 
