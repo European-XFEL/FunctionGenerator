@@ -1,12 +1,13 @@
 #############################################################################
 # Author: amunnich
 # Created on April 04, 2022, 11:06 AM
-# Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 #############################################################################
+
 from asyncio import wait_for
-from karabo.middlelayer import (
-    AccessLevel, AccessMode, Assignment, Overwrite, Slot, State, String
-)
+
+from karabo.middlelayer import (AccessLevel, AccessMode, Assignment, Overwrite,
+                                Slot, State, String)
 
 from .FunctionGenerator import FunctionGenerator
 

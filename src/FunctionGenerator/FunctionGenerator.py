@@ -1,14 +1,12 @@
 #############################################################################
 # Author: amunnich
 # Created on April 04, 2022, 11:06 AM
-# Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 #############################################################################
 
-from karabo.middlelayer import (
-    AccessMode, Assignment, Double, KaraboValue, Overwrite, State,
-    String, Slot, Unit, background
-)
-
+from karabo.middlelayer import (AccessMode, Assignment, Double, KaraboValue,
+                                Overwrite, Slot, State, String, Unit,
+                                background)
 from scpiml import BaseScpiDevice, ScpiConfigurable
 
 from ._version import version as deviceVersion

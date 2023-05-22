@@ -1,7 +1,11 @@
-from karabo.middlelayer import (
-    AccessLevel, AccessMode, Assignment, Double, Slot, State, String,
-    Unit
-)
+#############################################################################
+# Author: amunnich
+# Created on April 04, 2022, 11:06 AM
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
+#############################################################################
+
+from karabo.middlelayer import (AccessLevel, AccessMode, Assignment, Double,
+                                Slot, State, String, Unit)
 
 from .FunctionGenerator import ChannelNodeBase
 
